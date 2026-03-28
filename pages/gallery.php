@@ -74,7 +74,7 @@ while ($m = mysqli_fetch_assoc($map_animals)) {
     <!-- Filters -->
     <form method="GET" class="card shadow-sm p-3 mb-4">
         <div class="row g-3 align-items-end">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label small fw-bold">Search</label>
                 <input type="text" name="search" class="form-control" placeholder="Name, breed, location..." value="<?= htmlspecialchars($search) ?>">
             </div>
@@ -114,7 +114,7 @@ while ($m = mysqli_fetch_assoc($map_animals)) {
                     <option value="outside" <?= $type === 'outside' ? 'selected' : '' ?>>Outside / Monitored</option>
                 </select>
             </div>
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <button type="submit" class="btn btn-success w-100">Filter</button>
             </div>
         </div>
