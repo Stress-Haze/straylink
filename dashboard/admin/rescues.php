@@ -1,0 +1,165 @@
+<?php
+session_start();
+require_once '../../config/db.php';
+require_once '../../includes/functions.php';
+require_once '../../includes/auth.php';
+
+requireRole('admin');
+
+// Handle approve / reject
+if (isset($_GET['approve']) && is_numeric($_GET['approve'])) {
+    $id = (int)$_GET['approve'];
+    mysqli_query($conn, "UPDATE rescue_reports SET status = 'approved' WHERE id = $id");
+    redirect('rescues.php');
+}
+
+if (isset($_GET['reject']) && is_numeric($_GET['reject'])) {
+    $id = (int)$_GET['reject'];
+    mysqli_query($conn, "UPDATE rescue_reports SET status = 'rejected' WHERE id = $id");
+    redirect('rescues.php');
+}
+
+// Filter by status
+$filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
+$allowed = ['pending','approved','rejected','in_progress','resolved'];
+if (!in_array($filter, $allowed)) $filter = 'pending';
+
+$reports = mysqli_query($conn, "
+    SELECT r.*, m.full_name 
+    FROM rescue_reports r 
+    JOIN members m ON r.reported_by = m.id 
+    WHERE r.status = '$filter'
+    ORDER BY r.created_at DESC
+");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rescue Reports — StrayLink Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="index.php">🐾 StrayLink Admin</a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="text-white">Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
+            <a href="../../auth/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- Sidebar -->
+        <nav class="col-md-2 bg-light sidebar min-vh-100 p-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="members.php"><i class="bi bi-people"></i> Members</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="animals.php"><i class="bi bi-heart"></i> Animals</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> Blog Posts</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-10 p-4">
+            <h4 class="mb-4">Rescue Reports</h4>
+
+            <!-- Filter Tabs -->
+            <ul class="nav nav-tabs mb-4">
+                <?php foreach ($allowed as $s): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $filter === $s ? 'active' : '' ?>" href="?status=<?= $s ?>">
+                            <?= ucfirst($s) ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+
+            <div class="card shadow">
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Reported By</th>
+                                <th>Location</th>
+                                <th>Urgency</th>
+                                <th>Photo</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php while ($row = mysqli_fetch_assoc($reports)): ?>
+                            <tr>
+                                <td><?= $row['id'] ?></td>
+                                <td>
+                                    <strong><?= htmlspecialchars($row['title']) ?></strong>
+                                    <p class="text-muted small mb-0"><?= htmlspecialchars(substr($row['description'], 0, 80)) ?>...</p>
+                                </td>
+                                <td><?= htmlspecialchars($row['full_name']) ?></td>
+                                <td><?= htmlspecialchars($row['location_label'] ?? '—') ?></td>
+                                <td>
+                                    <span class="badge bg-<?= $row['urgency'] === 'critical' ? 'danger' : ($row['urgency'] === 'high' ? 'warning' : ($row['urgency'] === 'medium' ? 'info' : 'secondary')) ?>">
+                                        <?= ucfirst($row['urgency']) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($row['photo']): ?>
+                                        <a href="../../public/uploads/<?= $row['photo'] ?>" target="_blank">
+                                            <img src="../../public/uploads/<?= $row['photo'] ?>" width="50" height="50" style="object-fit:cover; border-radius:4px;">
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
+                                <td>
+                                    <?php if ($row['status'] === 'pending'): ?>
+                                        <a href="?approve=<?= $row['id'] ?>" class="btn btn-sm btn-success">Approve</a>
+                                        <a href="?reject=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Reject</a>
+                                    <?php else: ?>
+                                        <span class="badge bg-<?= $row['status'] === 'approved' ? 'success' : 'danger' ?>">
+                                            <?= ucfirst($row['status']) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                        <?php if (mysqli_num_rows($reports) === 0): ?>
+                            <tr><td colspan="8" class="text-center text-muted py-3">No <?= $filter ?> reports</td></tr>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
