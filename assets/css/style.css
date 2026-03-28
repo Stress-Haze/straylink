@@ -62,7 +62,8 @@ a:hover { color: var(--green-dark); }
    ============================================================ */
 .navbar {
   padding: 0.75rem 1.5rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.18);
 }
 
 .navbar-brand {
@@ -70,6 +71,27 @@ a:hover { color: var(--green-dark); }
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.navbar-brand img {
+  height: 34px;
+  width: auto;
+  max-width: 56px;
+  display: block;
+  object-fit: contain;
+}
+
+/* Extra safety: some browsers may not apply nested selectors consistently */
+.navbar-logo {
+  height: 34px !important;
+  max-width: 56px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  flex: 0 0 auto !important;
+  display: block !important;
 }
 
 .navbar .nav-link {
@@ -386,6 +408,7 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 2.25rem; /* visual separation from navbar */
 }
 
 .hero-overlay {
@@ -393,7 +416,7 @@ footer {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 80, 40, 0.72) 0%,
+    rgba(0, 80, 40, 0.15) 0%,
     rgba(0, 60, 30, 0.80) 100%
   );
 }

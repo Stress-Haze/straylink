@@ -76,12 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-success">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">🐾 StrayLink</a>
-        <a href="../../auth/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
-    </div>
-</nav>
+<?php
+    $dashboard_title = 'StrayLink Shelter';
+    include '../../includes/navbar_dashboard.php';
+?>
 
 <div class="container py-5">
     <div class="row justify-content-center">

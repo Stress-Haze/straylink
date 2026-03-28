@@ -6,10 +6,14 @@ require_once '../../includes/auth.php';
 
 requireRole('admin');
 
-// Handle approve / reject
+// Handle approve — award karma to reporter
 if (isset($_GET['approve']) && is_numeric($_GET['approve'])) {
     $id = (int)$_GET['approve'];
-    mysqli_query($conn, "UPDATE rescue_reports SET status = 'approved' WHERE id = $id");
+    $report = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM rescue_reports WHERE id = $id"));
+    if ($report) {
+        mysqli_query($conn, "UPDATE rescue_reports SET status = 'approved' WHERE id = $id");
+        addKarma($conn, $report['reported_by'], 5);
+    }
     redirect('rescues.php');
 }
 
@@ -19,13 +23,12 @@ if (isset($_GET['reject']) && is_numeric($_GET['reject'])) {
     redirect('rescues.php');
 }
 
-// Filter by status
-$filter = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
+$filter  = isset($_GET['status']) ? sanitize($_GET['status']) : 'pending';
 $allowed = ['pending','approved','rejected','in_progress','resolved'];
 if (!in_array($filter, $allowed)) $filter = 'pending';
 
 $reports = mysqli_query($conn, "
-    SELECT r.*, m.full_name 
+    SELECT r.*, m.full_name, m.karma
     FROM rescue_reports r 
     JOIN members m ON r.reported_by = m.id 
     WHERE r.status = '$filter'
@@ -44,49 +47,27 @@ $reports = mysqli_query($conn, "
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-success">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="index.php">🐾 StrayLink Admin</a>
-        <div class="ms-auto d-flex align-items-center gap-3">
-            <span class="text-white">Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
-            <a href="../../auth/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
-        </div>
-    </div>
-</nav>
+<?php
+    $dashboard_title = 'StrayLink Admin';
+    include '../../includes/navbar_dashboard.php';
+?>
 
 <div class="container-fluid">
     <div class="row">
-
-        <!-- Sidebar -->
         <nav class="col-md-2 bg-light sidebar min-vh-100 p-3">
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="members.php"><i class="bi bi-people"></i> Members</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="animals.php"><i class="bi bi-heart"></i> Animals</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> Blog Posts</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="members.php"><i class="bi bi-people"></i> Members</a></li>
+                <li class="nav-item"><a class="nav-link" href="animals.php"><i class="bi bi-heart"></i> Animals</a></li>
+                <li class="nav-item"><a class="nav-link active" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a></li>
+                <li class="nav-item"><a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a></li>
+                <li class="nav-item"><a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> Blog Posts</a></li>
             </ul>
         </nav>
 
-        <!-- Main Content -->
         <main class="col-md-10 p-4">
             <h4 class="mb-4">Rescue Reports</h4>
 
-            <!-- Filter Tabs -->
             <ul class="nav nav-tabs mb-4">
                 <?php foreach ($allowed as $s): ?>
                     <li class="nav-item">
@@ -120,7 +101,10 @@ $reports = mysqli_query($conn, "
                                     <strong><?= htmlspecialchars($row['title']) ?></strong>
                                     <p class="text-muted small mb-0"><?= htmlspecialchars(substr($row['description'], 0, 80)) ?>...</p>
                                 </td>
-                                <td><?= htmlspecialchars($row['full_name']) ?></td>
+                                <td>
+                                    <?= htmlspecialchars($row['full_name']) ?>
+                                    <br><small class="text-muted"><?= $row['karma'] ?> karma</small>
+                                </td>
                                 <td><?= htmlspecialchars($row['location_label'] ?? '—') ?></td>
                                 <td>
                                     <span class="badge bg-<?= $row['urgency'] === 'critical' ? 'danger' : ($row['urgency'] === 'high' ? 'warning' : ($row['urgency'] === 'medium' ? 'info' : 'secondary')) ?>">
@@ -130,7 +114,7 @@ $reports = mysqli_query($conn, "
                                 <td>
                                     <?php if ($row['photo']): ?>
                                         <a href="../../public/uploads/<?= $row['photo'] ?>" target="_blank">
-                                            <img src="../../public/uploads/<?= $row['photo'] ?>" width="50" height="50" style="object-fit:cover; border-radius:4px;">
+                                            <img src="../../public/uploads/<?= $row['photo'] ?>" width="50" height="50" style="object-fit:cover;border-radius:4px;">
                                         </a>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
@@ -139,7 +123,7 @@ $reports = mysqli_query($conn, "
                                 <td><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
                                 <td>
                                     <?php if ($row['status'] === 'pending'): ?>
-                                        <a href="?approve=<?= $row['id'] ?>" class="btn btn-sm btn-success">Approve</a>
+                                        <a href="?approve=<?= $row['id'] ?>" class="btn btn-sm btn-success">Approve +5 karma</a>
                                         <a href="?reject=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Reject</a>
                                     <?php else: ?>
                                         <span class="badge bg-<?= $row['status'] === 'approved' ? 'success' : 'danger' ?>">

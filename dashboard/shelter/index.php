@@ -28,15 +28,10 @@ $pending_requests = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-success">
-    <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="index.php">🐾 <?= htmlspecialchars($shelter['shelter_name']) ?></a>
-        <div class="ms-auto d-flex align-items-center gap-3">
-            <span class="text-white">Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
-            <a href="../../auth/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
-        </div>
-    </div>
-</nav>
+<?php
+    $dashboard_title = $shelter['shelter_name'] ?? 'StrayLink Shelter';
+    include '../../includes/navbar_dashboard.php';
+?>
 
 <div class="container-fluid">
     <div class="row">

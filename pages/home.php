@@ -38,35 +38,11 @@ $posts = mysqli_query($conn, "
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-success">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="home.php">🐾 StrayLink</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navMenu">
-            <ul class="navbar-nav ms-auto gap-2">
-                <li class="nav-item"><a class="nav-link" href="gallery.php">Gallery</a></li>
-                <li class="nav-item"><a class="nav-link" href="blog.php">Blog</a></li>
-                <li class="nav-item"><a class="nav-link" href="rescue.php">Report a Stray</a></li>
-                <?php if (isLoggedIn()): ?>
-                    <?php if (isAdmin()): ?>
-                        <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="../dashboard/admin/index.php">Dashboard</a></li>
-                    <?php elseif (isShelter()): ?>
-                        <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="../dashboard/shelter/index.php">Dashboard</a></li>
-                    <?php elseif (isVolunteer()): ?>
-                        <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="../dashboard/volunteer/index.php">Dashboard</a></li>
-                    <?php else: ?>
-                        <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="../auth/logout.php">Logout</a></li>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="../auth/login.php">Login</a></li>
-                    <li class="nav-item"><a class="btn btn-light btn-sm text-success fw-bold" href="../auth/register.php">Register</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
-    </div>
-</nav>
+<?php
+    $active_page = 'home';
+    $nav_depth = 1;
+    include '../includes/navbar.php';
+?>
 
 <!-- Hero -->
 <section class="hero-section">
@@ -248,12 +224,7 @@ $posts = mysqli_query($conn, "
 <?php endif; ?>
 
 <!-- Footer -->
-<footer class="bg-success text-white py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-1">🐾 StrayLink — Connecting strays with loving homes across Nepal</p>
-        <small>Built with compassion for animal welfare</small>
-    </div>
-</footer>
+<?php include '../includes/footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

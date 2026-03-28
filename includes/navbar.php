@@ -1,8 +1,8 @@
 <?php
 // includes/navbar.php
-// Usage from pages/: <?php include '../includes/navbar.php'; ?>
-// Usage from dashboard/: <?php include '../../includes/navbar.php'; ?>
-// Set $active_page before including, e.g. $active_page = 'gallery';
+// Usage from pages/: include '../includes/navbar.php';
+// Usage from dashboard/: include '../../includes/navbar.php';
+// Set $active_page before including, e.g. $active_page = 'gallery'.
 
 $active = $active_page ?? '';
 
@@ -10,10 +10,16 @@ $active = $active_page ?? '';
 $depth  = $nav_depth ?? 1; // 1 = pages/, 2 = dashboard/role/
 $root   = str_repeat('../', $depth);
 ?>
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success">
     <div class="container">
         <a class="navbar-brand" href="<?= $root ?>pages/home.php">
-            <img src="<?= $root ?>assets/img/logo.webp" alt="StrayLink"> StrayLink
+            <img
+                class="navbar-logo"
+                src="<?= $root ?>assets/img/logo.png"
+                alt="StrayLink"
+                style="height:34px; max-width:56px; width:auto; object-fit:contain; flex:0 0 auto; display:block;"
+            >
+            StrayLink
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
@@ -37,6 +43,9 @@ $root   = str_repeat('../', $depth);
                     <?php elseif (isVolunteer()): ?>
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>dashboard/volunteer/index.php">Dashboard</a></li>
                     <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= $active === 'account' ? 'active' : '' ?>" href="<?= $root ?>pages/account.php">My Account</a>
+                        </li>
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>auth/logout.php">Logout</a></li>
                     <?php endif; ?>
                 <?php else: ?>
