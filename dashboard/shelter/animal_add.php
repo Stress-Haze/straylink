@@ -31,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($species) || empty($collar_status)) {
         $error = "Species and collar status are required.";
+    } elseif ($collar_status === 'red' && $adoption_status === 'available') {
+        $error = "Red collar animals (injured/critical) cannot be marked as available for adoption. Only 'Reserved' or 'Not Available' are allowed.";
     } else {
         $stmt = mysqli_prepare($conn, "
             INSERT INTO animals 
@@ -237,5 +239,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Dynamic adoption status validation based on collar status
+const collarStatusSelect = document.querySelector('select[name="collar_status"]');
+const adoptionStatusSelect = document.querySelector('select[name="adoption_status"]');
+
+function updateAdoptionOptions() {
+    const isRed = collarStatusSelect.value === 'red';
+    const availableOption = adoptionStatusSelect.querySelector('option[value="available"]');
+    
+    if (isRed) {
+        availableOption.disabled = true;
+        availableOption.title = "Red collar animals cannot be marked as available";
+        // If "available" is currently selected, switch to "not_available"
+        if (adoptionStatusSelect.value === 'available') {
+            adoptionStatusSelect.value = 'not_available';
+        }
+    } else {
+        availableOption.disabled = false;
+        availableOption.title = "";
+    }
+}
+
+collarStatusSelect.addEventListener('change', updateAdoptionOptions);
+updateAdoptionOptions(); // Initialize on load
+</script>
 </body>
 </html>

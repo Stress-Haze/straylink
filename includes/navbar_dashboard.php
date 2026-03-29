@@ -11,10 +11,11 @@ $title = $dashboard_title ?? 'StrayLink';
         <a class="navbar-brand" href="index.php">
             <img
                 class="navbar-logo"
-                src="../../assets/img/logo.webp"
+                src="../../assets/img/logo.png"
                 alt="StrayLink"
                 style="height:34px; max-width:56px; width:auto; object-fit:contain; flex:0 0 auto; display:block;"
-            > <?= htmlspecialchars($title) ?>
+            >
+            <span><?= htmlspecialchars($title) ?></span>
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
             <span class="text-white small">Welcome, <?= htmlspecialchars($_SESSION['full_name'] ?? '') ?></span>

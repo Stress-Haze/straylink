@@ -46,41 +46,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $is_vaccinated   = isset($_POST['is_vaccinated']) ? 1 : 0;
     $is_sterilized   = isset($_POST['is_sterilized']) ? 1 : 0;
 
-    mysqli_query($conn, "
-        UPDATE animals SET
-            name            = '" . mysqli_real_escape_string($conn, $name) . "',
-            species         = '$species',
-            breed           = '" . mysqli_real_escape_string($conn, $breed) . "',
-            age_years       = $age_years,
-            age_months      = $age_months,
-            gender          = '$gender',
-            size            = '$size',
-            color           = '" . mysqli_real_escape_string($conn, $color) . "',
-            description     = '" . mysqli_real_escape_string($conn, $description) . "',
-            collar_status   = '$collar_status',
-            adoption_status = '$adoption_status',
-            is_vaccinated   = $is_vaccinated,
-            is_sterilized   = $is_sterilized
-        WHERE id = $animal_id AND shelter_id = $shelter_id
-    ");
+    // Validate: Red collar animals cannot be marked as available for adoption
+    if ($collar_status === 'red' && $adoption_status === 'available') {
+        $error = "Red collar animals (injured/critical) cannot be marked as available for adoption. Only 'Reserved' or 'Not Available' are allowed.";
+    } else {
+        mysqli_query($conn, "
+            UPDATE animals SET
+                name            = '" . mysqli_real_escape_string($conn, $name) . "',
+                species         = '$species',
+                breed           = '" . mysqli_real_escape_string($conn, $breed) . "',
+                age_years       = $age_years,
+                age_months      = $age_months,
+                gender          = '$gender',
+                size            = '$size',
+                color           = '" . mysqli_real_escape_string($conn, $color) . "',
+                description     = '" . mysqli_real_escape_string($conn, $description) . "',
+                collar_status   = '$collar_status',
+                adoption_status = '$adoption_status',
+                is_vaccinated   = $is_vaccinated,
+                is_sterilized   = $is_sterilized
+            WHERE id = $animal_id AND shelter_id = $shelter_id
+        ");
 
-    // Handle new photo uploads
-    if (!empty($_FILES['photos']['name'][0])) {
-        $allowed = ['jpg','jpeg','png','webp'];
-        foreach ($_FILES['photos']['tmp_name'] as $key => $tmp) {
-            if ($_FILES['photos']['error'][$key] === 0) {
-                $ext = pathinfo($_FILES['photos']['name'][$key], PATHINFO_EXTENSION);
-                if (in_array(strtolower($ext), $allowed)) {
-                    $filename = 'animal_' . $animal_id . '_' . time() . '_' . $key . '.' . $ext;
-                    move_uploaded_file($tmp, '../../public/uploads/' . $filename);
-                    mysqli_query($conn, "INSERT INTO animal_photos (animal_id, photo_path, is_primary) VALUES ($animal_id, '$filename', 0)");
+        // Handle new photo uploads
+        if (!empty($_FILES['photos']['name'][0])) {
+            $allowed = ['jpg','jpeg','png','webp'];
+            foreach ($_FILES['photos']['tmp_name'] as $key => $tmp) {
+                if ($_FILES['photos']['error'][$key] === 0) {
+                    $ext = pathinfo($_FILES['photos']['name'][$key], PATHINFO_EXTENSION);
+                    if (in_array(strtolower($ext), $allowed)) {
+                        $filename = 'animal_' . $animal_id . '_' . time() . '_' . $key . '.' . $ext;
+                        move_uploaded_file($tmp, '../../public/uploads/' . $filename);
+                        mysqli_query($conn, "INSERT INTO animal_photos (animal_id, photo_path, is_primary) VALUES ($animal_id, '$filename', 0)");
+                    }
                 }
             }
         }
+
+        $success = "Animal updated successfully!";
     }
 
-    $success = "Animal updated successfully!";
-    $animal  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM animals WHERE id = $animal_id"));
+    if (!$error) {
+        $animal  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM animals WHERE id = $animal_id"));
+    }
 }
 
 $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $animal_id");
@@ -277,5 +285,30 @@ $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $an
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Dynamic adoption status validation based on collar status
+const collarStatusSelect = document.querySelector('select[name="collar_status"]');
+const adoptionStatusSelect = document.querySelector('select[name="adoption_status"]');
+
+function updateAdoptionOptions() {
+    const isRed = collarStatusSelect.value === 'red';
+    const availableOption = adoptionStatusSelect.querySelector('option[value="available"]');
+    
+    if (isRed) {
+        availableOption.disabled = true;
+        availableOption.title = "Red collar animals cannot be marked as available";
+        // If "available" is currently selected, switch to "not_available"
+        if (adoptionStatusSelect.value === 'available') {
+            adoptionStatusSelect.value = 'not_available';
+        }
+    } else {
+        availableOption.disabled = false;
+        availableOption.title = "";
+    }
+}
+
+collarStatusSelect.addEventListener('change', updateAdoptionOptions);
+updateAdoptionOptions(); // Initialize on load
+</script>
 </body>
 </html>

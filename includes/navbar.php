@@ -49,7 +49,7 @@ $root   = str_repeat('../', $depth);
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>auth/logout.php">Logout</a></li>
                     <?php endif; ?>
                 <?php else: ?>
-                    <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>auth/login.php">Login</a></li>
+                    <li class="nav-item"><a class="btn btn-light btn-sm" href="<?= $root ?>auth/login.php">Login</a></li>
                     <li class="nav-item"><a class="btn btn-light btn-sm" href="<?= $root ?>auth/register.php">Register</a></li>
                 <?php endif; ?>
             </ul>

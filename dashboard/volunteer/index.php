@@ -56,7 +56,7 @@ $recent_logs = mysqli_query($conn, "
                     <div class="card text-white bg-success shadow">
                         <div class="card-body">
                             <h6 class="card-title">Total Activities</h6>
-                            <h2><?= $total_logs ?></h2>
+                            <h2 class="text-white"><?= $total_logs ?></h2>
                             <a href="log_activity.php" class="text-white small">Log new →</a>
                         </div>
                     </div>
@@ -65,7 +65,7 @@ $recent_logs = mysqli_query($conn, "
                     <div class="card text-white bg-primary shadow">
                         <div class="card-body">
                             <h6 class="card-title">Rescues Reported</h6>
-                            <h2><?= $total_rescues ?></h2>
+                            <h2 class="text-white"><?= $total_rescues ?></h2>
                             <a href="rescue_report.php" class="text-white small">Report new →</a>
                         </div>
                     </div>
@@ -74,7 +74,7 @@ $recent_logs = mysqli_query($conn, "
                     <div class="card text-white bg-warning shadow">
                         <div class="card-body">
                             <h6 class="card-title">Pending Approval</h6>
-                            <h2><?= $pending ?></h2>
+                            <h2 class="text-white"><?= $pending ?></h2>
                         </div>
                     </div>
                 </div>
@@ -82,7 +82,7 @@ $recent_logs = mysqli_query($conn, "
                     <div class="card text-white bg-info shadow">
                         <div class="card-body">
                             <h6 class="card-title">Resolved Rescues</h6>
-                            <h2><?= $resolved ?></h2>
+                            <h2 class="text-white"><?= $resolved ?></h2>
                         </div>
                     </div>
                 </div>

@@ -58,7 +58,7 @@ $pending_requests = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
                     <div class="card text-white bg-success shadow">
                         <div class="card-body">
                             <h6 class="card-title">Total Animals</h6>
-                            <h2><?= $total_animals ?></h2>
+                            <h2 class="text-white"><?= $total_animals ?></h2>
                             <a href="animals.php" class="text-white small">View all →</a>
                         </div>
                     </div>
@@ -67,7 +67,7 @@ $pending_requests = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
                     <div class="card text-white bg-primary shadow">
                         <div class="card-body">
                             <h6 class="card-title">Available</h6>
-                            <h2><?= $available ?></h2>
+                            <h2 class="text-white"><?= $available ?></h2>
                             <a href="animals.php?status=available" class="text-white small">View →</a>
                         </div>
                     </div>
@@ -76,7 +76,7 @@ $pending_requests = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
                     <div class="card text-white bg-info shadow">
                         <div class="card-body">
                             <h6 class="card-title">Adopted</h6>
-                            <h2><?= $adopted ?></h2>
+                            <h2 class="text-white"><?= $adopted ?></h2>
                             <a href="animals.php?status=adopted" class="text-white small">View →</a>
                         </div>
                     </div>
@@ -85,7 +85,7 @@ $pending_requests = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
                     <div class="card text-white bg-warning shadow">
                         <div class="card-body">
                             <h6 class="card-title">Pending Requests</h6>
-                            <h2><?= $pending_requests ?></h2>
+                            <h2 class="text-white"><?= $pending_requests ?></h2>
                             <a href="requests.php" class="text-white small">View →</a>
                         </div>
                     </div>

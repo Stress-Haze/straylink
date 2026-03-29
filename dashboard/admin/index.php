@@ -48,7 +48,7 @@ $pending_rescues = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as co
                     <div class="card text-white bg-success shadow">
                         <div class="card-body">
                             <h6 class="card-title">Total Animals</h6>
-                            <h2><?= $total_animals ?></h2>
+                            <h2 class="text-white"><?= $total_animals ?></h2>
                             <a href="animals.php" class="text-white small">View all →</a>
                         </div>
                     </div>
@@ -57,7 +57,7 @@ $pending_rescues = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as co
                     <div class="card text-white bg-primary shadow">
                         <div class="card-body">
                             <h6 class="card-title">Total Members</h6>
-                            <h2><?= $total_members ?></h2>
+                            <h2 class="text-white"><?= $total_members ?></h2>
                             <a href="members.php" class="text-white small">View all →</a>
                         </div>
                     </div>
@@ -66,7 +66,7 @@ $pending_rescues = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as co
                     <div class="card text-white bg-info shadow">
                         <div class="card-body">
                             <h6 class="card-title">Shelters</h6>
-                            <h2><?= $total_shelters ?></h2>
+                            <h2 class="text-white"><?= $total_shelters ?></h2>
                             <a href="shelters.php" class="text-white small">View all →</a>
                         </div>
                     </div>
@@ -75,7 +75,7 @@ $pending_rescues = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as co
                     <div class="card text-white bg-warning shadow">
                         <div class="card-body">
                             <h6 class="card-title">Pending Rescues</h6>
-                            <h2><?= $pending_rescues ?></h2>
+                            <h2 class="text-white"><?= $pending_rescues ?></h2>
                             <a href="rescues.php" class="text-white small">View all →</a>
                         </div>
                     </div>

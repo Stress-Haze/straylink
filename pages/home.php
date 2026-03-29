@@ -52,7 +52,7 @@ $posts = mysqli_query($conn, "
         <p class="lead mb-4 text-white">StrayLink connects rescued animals with loving families across Nepal.<br>Browse, adopt, volunteer, or report a stray in need.</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <a href="gallery.php" class="btn btn-light btn-lg text-success fw-bold">Browse Animals</a>
-            <a href="rescue.php" class="btn btn-outline-light btn-lg">Report a Stray</a>
+            <a href="rescue.php" class="btn btn-light btn-lg">Report a Stray</a>
         </div>
         <!-- Stats -->
         <div class="row justify-content-center mt-5 g-4">
@@ -95,7 +95,7 @@ $posts = mysqli_query($conn, "
                 <div class="card border-warning shadow-sm text-center p-4">
                     <div class="display-4 mb-3">🟡</div>
                     <h5 class="fw-bold text-warning">Yellow</h5>
-                    <p class="text-muted mb-0">Under observation or treatment — not yet ready for adoption</p>
+                    <p class="text-muted mb-0">Receiving minor treatment but available to adopt</p>
                 </div>
             </div>
             <div class="col-md-4">
