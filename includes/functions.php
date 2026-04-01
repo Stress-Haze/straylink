@@ -32,28 +32,28 @@ function timeAgo($datetime) {
     $time = strtotime($datetime);
     $diff = time() - $time;
     if ($diff < 60) return "just now";
-    if ($diff < 3600) return floor($diff/60) . " mins ago";
-    if ($diff < 86400) return floor($diff/3600) . " hours ago";
-    return floor($diff/86400) . " days ago";
+    if ($diff < 3600) return floor($diff / 60) . " mins ago";
+    if ($diff < 86400) return floor($diff / 3600) . " hours ago";
+    return floor($diff / 86400) . " days ago";
 }
 
 function addKarma($conn, $member_id, $points) {
     $member_id = (int)$member_id;
-    $points    = (int)$points;
+    $points = (int)$points;
     mysqli_query($conn, "UPDATE members SET karma = karma + $points WHERE id = $member_id");
 }
 
 function getKarmaLevel($karma) {
-    if ($karma >= 50) return ['label' => 'Champion',   'color' => 'danger',  'icon' => '🏆'];
-    if ($karma >= 25) return ['label' => 'Trusted',    'color' => 'warning', 'icon' => '⭐'];
-    if ($karma >= 10) return ['label' => 'Contributor','color' => 'success', 'icon' => '🌿'];
-    return                    ['label' => 'Newcomer',  'color' => 'secondary','icon' => '🌱'];
+    if ($karma >= 50) return ['label' => 'Champion', 'color' => 'danger', 'icon' => '&#127942;'];
+    if ($karma >= 25) return ['label' => 'Trusted', 'color' => 'warning', 'icon' => '&#11088;'];
+    if ($karma >= 10) return ['label' => 'Contributor', 'color' => 'success', 'icon' => '&#127807;'];
+    return ['label' => 'Newcomer', 'color' => 'secondary', 'icon' => '&#127793;'];
 }
 
 function getNextMilestone($karma) {
-    if ($karma < 10) return ['target' => 10,  'label' => 'Contributor — unlock blog posting'];
-    if ($karma < 25) return ['target' => 25,  'label' => 'Trusted — get a trusted badge'];
-    if ($karma < 50) return ['target' => 50,  'label' => 'Champion — top community member'];
+    if ($karma < 10) return ['target' => 10, 'label' => 'Contributor - unlock blog posting'];
+    if ($karma < 25) return ['target' => 25, 'label' => 'Trusted - get a trusted badge'];
+    if ($karma < 50) return ['target' => 50, 'label' => 'Champion - top community member'];
     return null;
 }
 

@@ -4,21 +4,25 @@ require_once '../config/db.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
-if (isLoggedIn()) redirect('../pages/home.php');
+if (isLoggedIn()) {
+    if (isAdmin()) redirect('../dashboard/admin/index.php');
+    elseif (isShelter()) redirect('../dashboard/shelter/index.php');
+    elseif (isVolunteer()) redirect('../dashboard/volunteer/index.php');
+    else redirect('../pages/account.php');
+}
 
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = sanitize($_POST['full_name']);
-    $email     = sanitize($_POST['email']);
-    $phone     = sanitize($_POST['phone']);
-    $city      = sanitize($_POST['city']);
-    $role      = sanitize($_POST['role']);
-    $password  = $_POST['password'];
-    $confirm   = $_POST['confirm_password'];
+    $email = sanitize($_POST['email']);
+    $phone = sanitize($_POST['phone']);
+    $city = sanitize($_POST['city']);
+    $role = sanitize($_POST['role']);
+    $password = $_POST['password'];
+    $confirm = $_POST['confirm_password'];
 
-    // Basic validation
     if (empty($full_name) || empty($email) || empty($password) || empty($role)) {
         $error = "Please fill in all required fields.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -30,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!in_array($role, ['user', 'volunteer', 'shelter'])) {
         $error = "Invalid role selected.";
     } else {
-        // Check if email already exists
         $check = mysqli_prepare($conn, "SELECT id FROM members WHERE email = ?");
         mysqli_stmt_bind_param($check, "s", $email);
         mysqli_stmt_execute($check);
@@ -40,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "An account with this email already exists.";
         } else {
             $password_hash = password_hash($password, PASSWORD_BCRYPT);
-          $is_verified = $role === 'user' ? 1 : 0;
+            $is_verified = $role === 'user' ? 1 : 0;
             $stmt = mysqli_prepare($conn, "INSERT INTO members (full_name, email, password_hash, phone, city, role, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?)");
             mysqli_stmt_bind_param($stmt, "ssssssi", $full_name, $email, $password_hash, $phone, $city, $role, $is_verified);
 
@@ -58,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register — StrayLink</title>
+    <title>Register - StrayLink</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>

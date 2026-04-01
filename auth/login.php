@@ -4,31 +4,30 @@ require_once '../config/db.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
-// If already logged in, redirect to appropriate dashboard
 if (isLoggedIn()) {
     if (isAdmin()) redirect('../dashboard/admin/index.php');
     elseif (isShelter()) redirect('../dashboard/shelter/index.php');
     elseif (isVolunteer()) redirect('../dashboard/volunteer/index.php');
-    else redirect('../pages/home.php');
+    else redirect('../pages/account.php');
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email    = sanitize($_POST['email']);
+    $email = sanitize($_POST['email']);
     $password = $_POST['password'];
 
     if (empty($email) || empty($password)) {
         $error = "Please fill in all fields.";
     } else {
-       $member = loginMember($conn, $email, $password);
+        $member = loginMember($conn, $email, $password);
         if ($member === 'pending') {
             $error = "Your account is pending admin approval. You will be notified once approved.";
         } elseif ($member) {
             if (isAdmin()) redirect('../dashboard/admin/index.php');
             elseif (isShelter()) redirect('../dashboard/shelter/index.php');
             elseif (isVolunteer()) redirect('../dashboard/volunteer/index.php');
-            else redirect('../pages/home.php');
+            else redirect('../pages/account.php');
         } else {
             $error = "Invalid email or password.";
         }
@@ -40,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — StrayLink</title>
+    <title>Login - StrayLink</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>

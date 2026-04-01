@@ -1,37 +1,31 @@
 /* ============================================================
-   StrayLink — Main Stylesheet
+   StrayLink - Main Stylesheet
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700&display=swap');
 
-/* ============================================================
-   CSS Variables
-   ============================================================ */
 :root {
-  --green:        #198754;
-  --green-dark:   #146c43;
-  --green-light:  #d1e7dd;
-  --cream:        #FAF7F2;
-  --cream-dark:   #F0EAE0;
-  --cream-border: #E2D9CE;
-  --text-dark:    #2C1A0E;
-  --text-mid:     #6B5744;
-  --text-light:   #A08070;
-  --yellow:       #ffc107;
-  --red:          #dc3545;
-  --white:        #FFFFFF;
-  --shadow-sm:    0 2px 8px rgba(0,0,0,0.07);
-  --shadow-md:    0 4px 20px rgba(0,0,0,0.10);
-  --shadow-lg:    0 8px 40px rgba(0,0,0,0.13);
-  --radius:       12px;
-  --radius-sm:    8px;
-  --radius-lg:    20px;
-  --transition:   all 0.25s ease;
+  --green: #198754;
+  --green-dark: #146c43;
+  --green-light: #d1e7dd;
+  --cream: #faf7f2;
+  --cream-dark: #f0eae0;
+  --cream-border: #e2d9ce;
+  --text-dark: #2c1a0e;
+  --text-mid: #6b5744;
+  --text-light: #a08070;
+  --yellow: #ffc107;
+  --red: #dc3545;
+  --white: #ffffff;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.13);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --transition: all 0.25s ease;
 }
 
-/* ============================================================
-   Base
-   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
@@ -57,13 +51,10 @@ a {
 
 a:hover { color: var(--green-dark); }
 
-/* ============================================================
-   Navbar — keep Bootstrap green, just polish it
-   ============================================================ */
 .navbar {
   padding: 0.75rem 1.5rem;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
-  border-bottom: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .navbar-brand {
@@ -84,7 +75,6 @@ a:hover { color: var(--green-dark); }
   object-fit: contain;
 }
 
-/* Extra safety: some browsers may not apply nested selectors consistently */
 .navbar-logo {
   height: 34px !important;
   max-width: 56px !important;
@@ -104,21 +94,10 @@ a:hover { color: var(--green-dark); }
 
 .navbar .nav-link:hover,
 .navbar .nav-link.active {
-  background-color: rgba(255,255,255,0.15);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
-.navbar .btn-outline-light {
-  font-weight: 600;
-  font-size: 0.85rem;
-  border-radius: 50px;
-  padding: 0.35rem 1rem;
-  transition: var(--transition);
-}
-
-.navbar .btn-outline-light:hover {
-  background-color: rgba(255,255,255,0.15);
-}
-
+.navbar .btn-outline-light,
 .navbar .btn-light {
   font-weight: 700;
   font-size: 0.85rem;
@@ -127,13 +106,14 @@ a:hover { color: var(--green-dark); }
   transition: var(--transition);
 }
 
+.navbar .btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
 .navbar .btn-light:hover {
   transform: translateY(-1px);
 }
 
-/* ============================================================
-   Buttons
-   ============================================================ */
 .btn {
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
@@ -145,13 +125,9 @@ a:hover { color: var(--green-dark); }
 
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
-
 .btn-lg { padding: 0.75rem 2rem; font-size: 1rem; }
 .btn-sm { padding: 0.3rem 0.9rem; font-size: 0.8rem; }
 
-/* ============================================================
-   Cards
-   ============================================================ */
 .card {
   border: 1px solid var(--cream-border);
   border-radius: var(--radius);
@@ -159,6 +135,7 @@ a:hover { color: var(--green-dark); }
   background-color: var(--white);
   transition: var(--transition);
   overflow: hidden;
+  animation: fadeInUp 0.4s ease forwards;
 }
 
 .card-header {
@@ -172,29 +149,11 @@ a:hover { color: var(--green-dark); }
 
 .card-body { padding: 1.25rem; }
 
-/* Animal cards hover lift */
 .card.h-100:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
 }
 
-/* Stat cards in dashboards */
-.card.text-white .card-body h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.2rem;
-}
-
-.card.text-white .card-body h6 {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.85;
-}
-
-/* ============================================================
-   Badges
-   ============================================================ */
 .badge {
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
@@ -204,9 +163,6 @@ a:hover { color: var(--green-dark); }
   letter-spacing: 0.02em;
 }
 
-/* ============================================================
-   Forms
-   ============================================================ */
 .form-control,
 .form-select {
   border: 1.5px solid var(--cream-border);
@@ -233,9 +189,6 @@ a:hover { color: var(--green-dark); }
   margin-bottom: 0.4rem;
 }
 
-/* ============================================================
-   Tables
-   ============================================================ */
 .table {
   font-size: 0.88rem;
   color: var(--text-dark);
@@ -263,9 +216,6 @@ a:hover { color: var(--green-dark); }
   background-color: var(--cream) !important;
 }
 
-/* ============================================================
-   Alerts
-   ============================================================ */
 .alert {
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -274,9 +224,6 @@ a:hover { color: var(--green-dark); }
   padding: 0.85rem 1.1rem;
 }
 
-/* ============================================================
-   Sidebar
-   ============================================================ */
 .sidebar {
   background-color: var(--cream-dark) !important;
   border-right: 1px solid var(--cream-border);
@@ -296,11 +243,6 @@ a:hover { color: var(--green-dark); }
   gap: 8px;
 }
 
-.sidebar .nav-link i {
-  font-size: 1rem;
-  width: 20px;
-}
-
 .sidebar .nav-link:hover {
   background-color: var(--cream-border);
   color: var(--green) !important;
@@ -312,9 +254,6 @@ a:hover { color: var(--green-dark); }
   box-shadow: var(--shadow-sm);
 }
 
-/* ============================================================
-   Nav Tabs
-   ============================================================ */
 .nav-tabs { border-bottom: 2px solid var(--cream-border); }
 
 .nav-tabs .nav-link {
@@ -341,64 +280,19 @@ a:hover { color: var(--green-dark); }
   background: transparent;
 }
 
-/* ============================================================
-   Footer
-   ============================================================ */
-footer {
-  border-top: 3px solid var(--green-dark);
-}
+footer { border-top: 3px solid var(--green-dark); }
 
-/* ============================================================
-   Animations
-   ============================================================ */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.card { animation: fadeInUp 0.4s ease forwards; }
-.row .col-md-4:nth-child(1) .card { animation-delay: 0.05s; }
-.row .col-md-4:nth-child(2) .card { animation-delay: 0.10s; }
-.row .col-md-4:nth-child(3) .card { animation-delay: 0.15s; }
-.row .col-md-3:nth-child(1) .card { animation-delay: 0.05s; }
-.row .col-md-3:nth-child(2) .card { animation-delay: 0.10s; }
-.row .col-md-3:nth-child(3) .card { animation-delay: 0.15s; }
-.row .col-md-3:nth-child(4) .card { animation-delay: 0.20s; }
-
-/* ============================================================
-   Auth pages
-   ============================================================ */
 .auth-page { background: var(--cream); min-height: 100vh; }
-
-/* ============================================================
-   Map
-   ============================================================ */
 #map { border-radius: 0 0 var(--radius) var(--radius); z-index: 1; }
-
-.leaflet-popup-content-wrapper {
-  border-radius: var(--radius-sm) !important;
-  font-family: 'Nunito', sans-serif !important;
-  font-size: 0.85rem !important;
-  box-shadow: var(--shadow-md) !important;
-}
-
-/* ============================================================
-   Utility
-   ============================================================ */
 .bg-light { background-color: var(--cream-dark) !important; }
 .text-muted { color: var(--text-light) !important; }
+.border-dashed { border-style: dashed !important; }
 
-/* ============================================================
-   Responsive
-   ============================================================ */
-@media (max-width: 768px) {
-  .sidebar { min-height: auto; }
-  body { font-size: 14px; }
-}
-
-/* ============================================================
-   Hero Section with background image
-   ============================================================ */
 .hero-section {
   position: relative;
   min-height: 92vh;
@@ -408,17 +302,13 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 2.25rem; /* visual separation from navbar */
+  padding-top: 2.25rem;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 80, 40, 0.15) 0%,
-    rgba(0, 60, 30, 0.80) 100%
-  );
+  background: linear-gradient(to bottom, rgba(0, 80, 40, 0.15) 0%, rgba(0, 60, 30, 0.8) 100%);
 }
 
 .hero-content {
@@ -427,32 +317,257 @@ footer {
   padding: 5rem 1rem 4rem;
 }
 
+.eyebrow-chip {
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .hero-content h1 {
-  font-family: 'Playfair Display', serif;
   font-size: clamp(2.4rem, 5vw, 3.8rem);
-  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   color: #fff !important;
 }
 
 .hero-content .lead {
   font-size: 1.15rem;
-  color: rgba(255,255,255,0.88) !important;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.25);
+  color: rgba(255, 255, 255, 0.88) !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
   max-width: 580px;
-  margin: 0 auto 2rem;
+  margin: 0 0 2rem;
 }
 
-.hero-stat-box h2 {
+.btn-outline-hero {
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-outline-hero:hover {
+  color: var(--text-dark);
+  background: #fff;
+  border-color: #fff;
+}
+
+.hero-panel {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+  border-radius: 24px;
+  padding: 1.35rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.hero-panel-head,
+.hero-panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.88rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #b9ffcf;
+  box-shadow: 0 0 0 6px rgba(185, 255, 207, 0.16);
+}
+
+.hero-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin: 1rem 0;
+}
+
+.hero-panel-card {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.hero-panel-card strong {
+  display: block;
   font-family: 'Playfair Display', serif;
-  font-size: 2.4rem;
-  color: #fff !important;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  font-size: 2rem;
+  color: #fff;
 }
 
-.hero-stat-box p {
-  color: rgba(255,255,255,0.65) !important;
-  font-size: 0.85rem;
-  font-weight: 600;
+.hero-panel-card span {
+  display: block;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.88rem;
+}
+
+.home-intro-band {
+  background: radial-gradient(circle at top right, rgba(25, 135, 84, 0.1), transparent 35%), linear-gradient(180deg, #fffdf9 0%, #f7f0e7 100%);
+}
+
+.feature-surface,
+.community-note,
+.account-hero,
+.account-summary-card,
+.mobile-request-card {
+  background: #fff;
+  border: 1px solid var(--cream-border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.feature-surface,
+.community-note,
+.account-hero {
+  padding: 1.75rem;
+}
+
+.section-kicker {
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+}
+
+.feature-points {
+  display: grid;
+  gap: 1rem;
+}
+
+.feature-point {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.feature-point i,
+.how-icon {
+  color: var(--green);
+  font-size: 1.5rem;
+}
+
+.feature-point span {
+  color: var(--text-mid);
+  font-size: 0.92rem;
+}
+
+.community-note {
+  background: linear-gradient(180deg, #fff 0%, #f3efe8 100%);
+}
+
+.collar-dot {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin: 0 auto;
+  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.8), 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.collar-green { background: #198754; }
+.collar-yellow { background: #ffc107; }
+.collar-red { background: #dc3545; }
+
+.account-hero {
+  background: radial-gradient(circle at top right, rgba(25, 135, 84, 0.16), transparent 30%), linear-gradient(180deg, #fff 0%, #faf5ed 100%);
+}
+
+.account-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.quick-action-card {
+  background: #fff;
+  border: 1px solid var(--cream-border);
+  border-radius: 18px;
+  padding: 1rem;
+  color: var(--text-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-action-card i {
+  display: block;
+  color: var(--green);
+  font-size: 1.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.quick-action-card span {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-3px);
+  color: var(--green-dark);
+}
+
+.account-summary-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  height: 100%;
+  background: linear-gradient(180deg, var(--green) 0%, var(--green-dark) 100%);
+  border: none;
+  color: #fff;
+}
+
+.summary-stat {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 1rem;
+}
+
+.summary-stat strong {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.summary-stat span {
+  font-size: 0.9rem;
+  opacity: 0.86;
+}
+
+.mobile-request-card {
+  padding: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.mobile-request-card:last-child { margin-bottom: 0; }
+
+@media (max-width: 768px) {
+  .sidebar { min-height: auto; }
+  body { font-size: 14px; }
+  .hero-section {
+    min-height: auto;
+    padding: 3rem 0 2rem;
+  }
+  .hero-content {
+    padding: 2rem 0.5rem 1rem;
+  }
+  .hero-content .lead {
+    margin: 0 auto 1.5rem;
+  }
+  .hero-panel-grid,
+  .account-quick-actions {
+    grid-template-columns: 1fr;
+  }
+  .feature-surface,
+  .community-note,
+  .account-hero {
+    padding: 1.25rem;
+  }
 }
