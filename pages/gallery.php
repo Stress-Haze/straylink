@@ -4,27 +4,32 @@ require_once '../config/db.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
-// Filters
-$species  = isset($_GET['species'])  ? sanitize($_GET['species'])  : '';
-$collar   = isset($_GET['collar'])   ? sanitize($_GET['collar'])   : '';
-$status   = isset($_GET['status'])   ? sanitize($_GET['status'])   : '';
-$search   = isset($_GET['search'])   ? sanitize($_GET['search'])   : '';
-$type     = isset($_GET['type'])     ? sanitize($_GET['type'])     : ''; // in_shelter or outside
+$species = isset($_GET['species']) ? sanitize($_GET['species']) : '';
+$collar = isset($_GET['collar']) ? sanitize($_GET['collar']) : '';
+$status = isset($_GET['status']) ? sanitize($_GET['status']) : '';
+$search = isset($_GET['search']) ? sanitize($_GET['search']) : '';
+$type = isset($_GET['type']) ? sanitize($_GET['type']) : '';
 
 $where = "WHERE a.is_active = 1";
 
-if ($species && in_array($species, ['dog','cat','other']))
+if ($species && in_array($species, ['dog', 'cat', 'other'])) {
     $where .= " AND a.species = '$species'";
-if ($collar && in_array($collar, ['green','yellow','red']))
+}
+if ($collar && in_array($collar, ['green', 'yellow', 'red'])) {
     $where .= " AND a.collar_status = '$collar'";
-if ($status && in_array($status, ['available','reserved','adopted','not_available']))
+}
+if ($status && in_array($status, ['available', 'reserved', 'adopted', 'not_available'])) {
     $where .= " AND a.adoption_status = '$status'";
-if ($type === 'shelter')
+}
+if ($type === 'shelter') {
     $where .= " AND a.is_in_shelter = 1";
-if ($type === 'outside')
+}
+if ($type === 'outside') {
     $where .= " AND a.is_in_shelter = 0";
-if ($search)
+}
+if ($search) {
     $where .= " AND (a.name LIKE '%$search%' OR a.breed LIKE '%$search%' OR a.location_label LIKE '%$search%')";
+}
 
 $animals = mysqli_query($conn, "
     SELECT a.*, s.shelter_name,
@@ -35,7 +40,6 @@ $animals = mysqli_query($conn, "
     ORDER BY a.created_at DESC
 ");
 
-// For map — animals with coordinates
 $map_animals = mysqli_query($conn, "
     SELECT a.id, a.name, a.species, a.collar_status, a.is_in_shelter,
            a.location_label, a.latitude, a.longitude, s.shelter_name
@@ -43,17 +47,42 @@ $map_animals = mysqli_query($conn, "
     LEFT JOIN shelters s ON a.shelter_id = s.id
     WHERE a.is_active = 1 AND a.latitude IS NOT NULL AND a.longitude IS NOT NULL
 ");
+
 $map_data = [];
 while ($m = mysqli_fetch_assoc($map_animals)) {
     $map_data[] = $m;
 }
+
+$animals_list = [];
+while ($a = mysqli_fetch_assoc($animals)) {
+    $animals_list[] = $a;
+}
+
+$total_results = count($animals_list);
+$available_count = 0;
+$shelter_count = 0;
+foreach ($animals_list as $item) {
+    if ($item['adoption_status'] === 'available') {
+        $available_count++;
+    }
+    if ((int)$item['is_in_shelter'] === 1) {
+        $shelter_count++;
+    }
+}
+
+$active_filters = [];
+if ($search) $active_filters[] = 'Search: ' . $search;
+if ($species) $active_filters[] = 'Species: ' . ucfirst($species);
+if ($collar) $active_filters[] = 'Collar: ' . ucfirst($collar);
+if ($status) $active_filters[] = 'Status: ' . ucfirst(str_replace('_', ' ', $status));
+if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside monitored';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animal Gallery — StrayLink</title>
+    <title>Animal Gallery - StrayLink</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -61,7 +90,6 @@ while ($m = mysqli_fetch_assoc($map_animals)) {
 </head>
 <body>
 
-<!-- Navbar -->
 <?php
     $active_page = 'gallery';
     $nav_depth = 1;
@@ -69,118 +97,165 @@ while ($m = mysqli_fetch_assoc($map_animals)) {
 ?>
 
 <div class="container py-5">
-    <h2 class="fw-bold mb-4">Animal Gallery</h2>
-
-    <!-- Filters -->
-    <form method="GET" class="card shadow-sm p-3 mb-4">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-2">
-                <label class="form-label small fw-bold">Search</label>
-                <input type="text" name="search" class="form-control" placeholder="Name, breed, location..." value="<?= htmlspecialchars($search) ?>">
+    <section class="gallery-hero mb-4">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <p class="section-kicker mb-2">Adoption gallery</p>
+                <h1 class="fw-bold mb-3">Browse animals, check their status, and follow the right next step.</h1>
+                <p class="text-muted mb-4">This page is designed to work like a community browse screen: quick filtering on mobile, richer cards on desktop, and enough detail to decide where to tap next.</p>
+                <div class="gallery-chip-row">
+                    <span class="gallery-chip"><strong><?= $total_results ?></strong> results</span>
+                    <span class="gallery-chip"><strong><?= $available_count ?></strong> available</span>
+                    <span class="gallery-chip"><strong><?= $shelter_count ?></strong> in shelter</span>
+                </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-lg-5">
+                <div class="gallery-summary-card">
+                    <div>
+                        <span class="summary-label">Best for adopters</span>
+                        <strong>Use filters to narrow by species, collar status, and readiness.</strong>
+                    </div>
+                    <div>
+                        <span class="summary-label">Best for quick mobile use</span>
+                        <strong>Open profiles directly from the first card view without hunting for details.</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <form method="GET" class="card shadow-sm p-3 mb-4 filter-surface">
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label small fw-bold">Search</label>
+                <input type="text" name="search" class="form-control" placeholder="Name, breed, or location" value="<?= htmlspecialchars($search) ?>">
+            </div>
+            <div class="col-lg-2 col-md-6">
                 <label class="form-label small fw-bold">Species</label>
                 <select name="species" class="form-select">
                     <option value="">All Species</option>
-                    <option value="dog"   <?= $species === 'dog'   ? 'selected' : '' ?>>Dog</option>
-                    <option value="cat"   <?= $species === 'cat'   ? 'selected' : '' ?>>Cat</option>
+                    <option value="dog" <?= $species === 'dog' ? 'selected' : '' ?>>Dog</option>
+                    <option value="cat" <?= $species === 'cat' ? 'selected' : '' ?>>Cat</option>
                     <option value="other" <?= $species === 'other' ? 'selected' : '' ?>>Other</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold">Collar Status</label>
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label small fw-bold">Collar</label>
                 <select name="collar" class="form-select">
                     <option value="">All</option>
-                    <option value="green"  <?= $collar === 'green'  ? 'selected' : '' ?>>🟢 Green</option>
-                    <option value="yellow" <?= $collar === 'yellow' ? 'selected' : '' ?>>🟡 Yellow</option>
-                    <option value="red"    <?= $collar === 'red'    ? 'selected' : '' ?>>🔴 Red</option>
+                    <option value="green" <?= $collar === 'green' ? 'selected' : '' ?>>Green</option>
+                    <option value="yellow" <?= $collar === 'yellow' ? 'selected' : '' ?>>Yellow</option>
+                    <option value="red" <?= $collar === 'red' ? 'selected' : '' ?>>Red</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold">Adoption Status</label>
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label small fw-bold">Adoption</label>
                 <select name="status" class="form-select">
                     <option value="">All</option>
-                    <option value="available"     <?= $status === 'available'     ? 'selected' : '' ?>>Available</option>
-                    <option value="reserved"      <?= $status === 'reserved'      ? 'selected' : '' ?>>Reserved</option>
-                    <option value="adopted"       <?= $status === 'adopted'       ? 'selected' : '' ?>>Adopted</option>
+                    <option value="available" <?= $status === 'available' ? 'selected' : '' ?>>Available</option>
+                    <option value="reserved" <?= $status === 'reserved' ? 'selected' : '' ?>>Reserved</option>
+                    <option value="adopted" <?= $status === 'adopted' ? 'selected' : '' ?>>Adopted</option>
                     <option value="not_available" <?= $status === 'not_available' ? 'selected' : '' ?>>Not Available</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label small fw-bold">Type</label>
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label small fw-bold">Location Type</label>
                 <select name="type" class="form-select">
                     <option value="">All</option>
                     <option value="shelter" <?= $type === 'shelter' ? 'selected' : '' ?>>In Shelter</option>
-                    <option value="outside" <?= $type === 'outside' ? 'selected' : '' ?>>Outside / Monitored</option>
+                    <option value="outside" <?= $type === 'outside' ? 'selected' : '' ?>>Outside</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-success w-100">Filter</button>
+            <div class="col-lg-1 col-md-6 d-grid">
+                <button type="submit" class="btn btn-success">Go</button>
             </div>
         </div>
+        <?php if ($active_filters): ?>
+            <div class="active-filter-row mt-3">
+                <?php foreach ($active_filters as $filter): ?>
+                    <span class="active-filter-pill"><?= htmlspecialchars($filter) ?></span>
+                <?php endforeach; ?>
+                <a href="gallery.php" class="btn btn-link btn-sm p-0">Clear all</a>
+            </div>
+        <?php endif; ?>
     </form>
 
-    <!-- Map -->
     <?php if (count($map_data) > 0): ?>
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white fw-bold">📍 Animal Map</div>
+    <div class="card shadow-sm mb-4 overflow-hidden">
+        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-geo-alt text-success"></i> Community Animal Map</span>
+            <small class="text-muted">Known locations only</small>
+        </div>
         <div id="map" style="height: 350px;"></div>
     </div>
     <?php endif; ?>
 
-    <!-- Animal Cards -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Browse Results</h2>
+            <p class="text-muted"><?= $total_results ?> animals currently match your filters.</p>
+        </div>
+        <?php if (isLoggedIn() && hasRole('user')): ?>
+            <a href="account.php" class="btn btn-outline-success">Go to My App</a>
+        <?php endif; ?>
+    </div>
+
     <div class="row g-4">
-    <?php 
-    $count = 0;
-    while ($a = mysqli_fetch_assoc($animals)): 
-        $count++;
-    ?>
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <?php if ($a['photo']): ?>
-                    <img src="../public/uploads/<?= $a['photo'] ?>" class="card-img-top" style="height:220px;object-fit:cover;">
-                <?php else: ?>
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height:220px;">
-                        <i class="bi bi-image text-muted" style="font-size:3rem;"></i>
-                    </div>
-                <?php endif; ?>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="card-title mb-0"><?= htmlspecialchars($a['name'] ?? 'Unnamed') ?></h5>
-                        <span class="badge" style="background-color:<?= $a['collar_status'] === 'green' ? '#198754' : ($a['collar_status'] === 'yellow' ? '#ffc107' : '#dc3545') ?>">
-                            <?= $a['collar_status'] === 'green' ? '🟢' : ($a['collar_status'] === 'yellow' ? '🟡' : '🔴') ?>
-                            <?= ucfirst($a['collar_status']) ?>
-                        </span>
-                    </div>
-                    <p class="text-muted small mb-1">
-                        <?= ucfirst($a['species']) ?> · <?= ucfirst($a['gender']) ?> · <?= ucfirst($a['size']) ?>
-                    </p>
-                    <?php if ($a['is_in_shelter'] && $a['shelter_name']): ?>
-                        <p class="text-muted small mb-1"><i class="bi bi-house"></i> <?= htmlspecialchars($a['shelter_name']) ?></p>
-                    <?php elseif (!$a['is_in_shelter'] && $a['location_label']): ?>
-                        <p class="text-muted small mb-1"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($a['location_label']) ?></p>
+    <?php foreach ($animals_list as $a): ?>
+        <?php
+            $collar_class = $a['collar_status'] === 'green' ? 'bg-success' : ($a['collar_status'] === 'yellow' ? 'text-bg-warning' : 'bg-danger');
+            $collar_label = $a['collar_status'] === 'green' ? 'Ready' : ($a['collar_status'] === 'yellow' ? 'In treatment' : 'Critical');
+            $adoption_class = $a['adoption_status'] === 'available' ? 'bg-success' : ($a['adoption_status'] === 'reserved' ? 'text-bg-warning' : 'bg-secondary');
+        ?>
+        <div class="col-md-6 col-xl-4">
+            <div class="card shadow-sm h-100 gallery-card">
+                <div class="gallery-card-media">
+                    <?php if ($a['photo']): ?>
+                        <img src="../public/uploads/<?= htmlspecialchars($a['photo']) ?>" class="card-img-top" style="height:240px;object-fit:cover;" alt="<?= htmlspecialchars($a['name'] ?? 'Animal photo') ?>">
+                    <?php else: ?>
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height:240px;">
+                            <i class="bi bi-image text-muted" style="font-size:3rem;"></i>
+                        </div>
                     <?php endif; ?>
-                    <p class="text-muted small mb-3">
-                        <span class="badge bg-<?= $a['adoption_status'] === 'available' ? 'success' : 'secondary' ?>">
-                            <?= ucfirst($a['adoption_status']) ?>
-                        </span>
-                    </p>
-                    <a href="animal.php?id=<?= $a['id'] ?>" class="btn btn-success w-100">View Profile</a>
+                    <div class="gallery-card-badges">
+                        <span class="badge <?= $collar_class ?>"><?= $collar_label ?></span>
+                        <span class="badge <?= $adoption_class ?>"><?= ucfirst(str_replace('_', ' ', $a['adoption_status'])) ?></span>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                        <div>
+                            <h5 class="card-title mb-1"><?= htmlspecialchars($a['name'] ?? 'Unnamed') ?></h5>
+                            <p class="text-muted small"><?= ucfirst($a['species']) ?> · <?= ucfirst($a['gender']) ?> · <?= ucfirst($a['size']) ?></p>
+                        </div>
+                    </div>
+                    <div class="gallery-meta-list mb-3">
+                        <?php if (!empty($a['breed'])): ?>
+                            <span><i class="bi bi-bookmark-heart"></i> <?= htmlspecialchars($a['breed']) ?></span>
+                        <?php endif; ?>
+                        <?php if ($a['is_in_shelter'] && $a['shelter_name']): ?>
+                            <span><i class="bi bi-house-heart"></i> <?= htmlspecialchars($a['shelter_name']) ?></span>
+                        <?php elseif (!$a['is_in_shelter'] && $a['location_label']): ?>
+                            <span><i class="bi bi-geo-alt"></i> <?= htmlspecialchars($a['location_label']) ?></span>
+                        <?php endif; ?>
+                        <span><i class="bi bi-clipboard2-pulse"></i> <?= $a['is_in_shelter'] ? 'In shelter care' : 'Outside monitored' ?></span>
+                    </div>
+                    <a href="animal.php?id=<?= $a['id'] ?>" class="btn btn-success w-100 mt-auto">View Profile</a>
                 </div>
             </div>
         </div>
-    <?php endwhile; ?>
-    <?php if ($count === 0): ?>
+    <?php endforeach; ?>
+
+    <?php if ($total_results === 0): ?>
         <div class="col-12 text-center text-muted py-5">
             <i class="bi bi-search" style="font-size:3rem;"></i>
-            <p class="mt-3">No animals found matching your filters.</p>
+            <p class="mt-3 mb-3">No animals found matching your filters.</p>
             <a href="gallery.php" class="btn btn-outline-success">Clear Filters</a>
         </div>
     <?php endif; ?>
     </div>
 </div>
 
-<!-- Footer -->
 <?php include '../includes/footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -189,16 +264,16 @@ while ($m = mysqli_fetch_assoc($map_animals)) {
 <?php if (count($map_data) > 0): ?>
 const map = L.map('map').setView([28.2096, 83.9856], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
 const animals = <?= json_encode($map_data) ?>;
 animals.forEach(a => {
-    const color = a.collar_status === 'green' ? '🟢' : (a.collar_status === 'yellow' ? '🟡' : '🔴');
-    const label = a.is_in_shelter ? (a.shelter_name || 'Shelter') : (a.location_label || 'Outside');
+    const label = a.collar_status === 'green' ? 'Ready' : (a.collar_status === 'yellow' ? 'In treatment' : 'Critical');
+    const place = a.is_in_shelter ? (a.shelter_name || 'Shelter') : (a.location_label || 'Outside monitored');
     L.marker([a.latitude, a.longitude])
         .addTo(map)
-        .bindPopup(`<strong>${color} ${a.name || 'Unnamed'}</strong><br>${a.species}<br>${label}<br><a href="animal.php?id=${a.id}">View Profile →</a>`);
+        .bindPopup(`<strong>${a.name || 'Unnamed'}</strong><br>${label}<br>${place}<br><a href="animal.php?id=${a.id}">View Profile</a>`);
 });
 <?php endif; ?>
 </script>
