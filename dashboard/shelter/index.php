@@ -47,6 +47,7 @@ $pending_requests = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c
                         <?php endif; ?>
                     </a>
                 </li>
+                <li class="nav-item"><a class="nav-link" href="donations.php"><i class="bi bi-cash-coin"></i> Donations</a></li>
                 <li class="nav-item"><a class="nav-link" href="profile.php"><i class="bi bi-gear"></i> Shelter Profile</a></li>
             </ul>
         </nav>

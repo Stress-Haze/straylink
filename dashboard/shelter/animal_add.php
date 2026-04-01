@@ -109,6 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a class="nav-link" href="requests.php"><i class="bi bi-envelope"></i> Adoption Requests</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="donations.php"><i class="bi bi-cash-coin"></i> Donations</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="profile.php"><i class="bi bi-gear"></i> Shelter Profile</a>
                 </li>
             </ul>

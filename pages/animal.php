@@ -206,6 +206,9 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
                     <?php if ($animal['contact_number']): ?>
                         <p class="mb-0"><i class="bi bi-telephone"></i> <a href="tel:<?= htmlspecialchars($animal['contact_number']) ?>" class="text-success fw-bold"><?= htmlspecialchars($animal['contact_number']) ?></a></p>
                     <?php endif; ?>
+                    <div class="mt-3">
+                        <a href="donate.php?shelter_id=<?= (int)$animal['shelter_id'] ?>" class="btn btn-outline-success">Support This Shelter</a>
+                    </div>
                 </div>
             </div>
             <?php elseif (!$animal['is_in_shelter'] && $animal['location_label']): ?>

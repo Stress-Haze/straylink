@@ -863,3 +863,24 @@ footer { border-top: 3px solid var(--green-dark); }
     position: static;
   }
 }
+
+.donation-method-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.payment-method-card {
+  border: 1px solid var(--cream-border);
+  border-radius: 18px;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.donation-qr-preview {
+  width: 100%;
+  max-width: 220px;
+  border-radius: 16px;
+  border: 1px solid var(--cream-border);
+  margin-top: 0.75rem;
+}
