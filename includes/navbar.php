@@ -27,6 +27,9 @@ $root = str_repeat('../', $depth);
                     <a class="nav-link <?= $active === 'gallery' ? 'active' : '' ?>" href="<?= $root ?>pages/gallery.php">Gallery</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= $active === 'shelters' ? 'active' : '' ?>" href="<?= $root ?>pages/shelters.php">Shelters</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= $active === 'blog' ? 'active' : '' ?>" href="<?= $root ?>pages/blog.php">Blog</a>
                 </li>
                 <li class="nav-item">

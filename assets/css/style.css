@@ -633,10 +633,34 @@ footer { border-top: 3px solid var(--green-dark); }
 
 .gallery-card {
   border-radius: 20px;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md) !important;
 }
 
 .gallery-card-media {
   position: relative;
+  overflow: hidden;
+  background: var(--cream-dark);
+}
+
+.gallery-card-media img {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.gallery-card:hover .gallery-card-media img {
+  transform: scale(1.05);
 }
 
 .gallery-card-badges {
@@ -664,12 +688,24 @@ footer { border-top: 3px solid var(--green-dark); }
   font-size: 0.92rem;
 }
 
+.gallery-meta-list span a {
+  color: inherit;
+}
+
 .gallery-meta-list i {
   color: var(--green);
+  flex-shrink: 0;
+}
+
+.gallery-card .card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .animal-subtitle {
   font-size: 1rem;
+  line-height: 1.5;
 }
 
 .animal-summary-panel {
@@ -685,6 +721,7 @@ footer { border-top: 3px solid var(--green-dark); }
   width: 100%;
   height: 430px;
   object-fit: cover;
+  background: var(--cream-dark);
 }
 
 .animal-thumb-strip {
@@ -883,4 +920,264 @@ footer { border-top: 3px solid var(--green-dark); }
   border-radius: 16px;
   border: 1px solid var(--cream-border);
   margin-top: 0.75rem;
+}
+
+.shelter-hero,
+.shelter-detail-hero {
+  background: radial-gradient(circle at top right, rgba(25, 135, 84, 0.16), transparent 28%), linear-gradient(180deg, #fff 0%, #faf5ed 100%);
+  border: 1px solid var(--cream-border);
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.shelter-card {
+  border-radius: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.shelter-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+.shelter-card-top {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border-bottom: 1px solid var(--cream-border);
+}
+
+.shelter-logo-wrap,
+.shelter-logo-large {
+  flex: 0 0 auto;
+}
+
+.shelter-logo-img,
+.shelter-logo-large-img {
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid var(--cream-border);
+  background: #fff;
+  padding: 0;
+  display: block;
+}
+
+.shelter-logo-img {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.shelter-logo-large-img {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.shelter-logo-placeholder {
+  width: 74px;
+  height: 74px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-dark);
+  color: var(--green);
+  border: 1px solid var(--cream-border);
+  font-size: 1.9rem;
+}
+
+.shelter-logo-placeholder.large {
+  width: 96px;
+  height: 96px;
+  font-size: 2.2rem;
+}
+
+.shelter-description-preview {
+  min-height: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.shelter-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.shelter-card-btn {
+  margin-top: auto;
+}
+
+.shelter-summary-card {
+  height: auto;
+  align-content: start;
+}
+
+.shelter-list-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+  gap: 1.5rem !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+.shelter-card {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.shelter-card-headings {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.shelter-card-headings .card-title {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  min-height: 2.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shelter-card-headings p {
+  overflow-wrap: break-word;
+  font-size: 0.9rem;
+}
+
+.shelter-empty-state {
+  grid-column: 1 / -1;
+}
+
+.shelter-side-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.shelter-detail-layout {
+  align-items: flex-start;
+}
+
+.shelter-animal-scroller {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 0;
+}
+
+.shelter-animal-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--cream-border);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  min-height: 0;
+  height: 100%;
+  transition: var(--transition);
+}
+
+.shelter-animal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+.shelter-animal-media {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: var(--cream-dark);
+}
+
+.shelter-animal-media img,
+.shelter-animal-placeholder {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.shelter-animal-media img {
+  object-fit: cover;
+}
+
+.shelter-animal-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream-dark);
+  color: var(--text-light);
+  font-size: 2.4rem;
+}
+
+.shelter-animal-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  padding: 1rem;
+}
+
+.shelter-animal-body h5 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.shelter-animal-btn {
+  margin-top: auto;
+}
+
+@media (max-width: 768px) {
+  .shelter-hero,
+  .shelter-detail-hero {
+    padding: 1.25rem;
+  }
+
+  .shelter-list-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .shelter-animal-scroller {
+    grid-template-columns: 1fr;
+  }
+
+  .shelter-card-top {
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .shelter-animal-card {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 991px) {
+  .shelter-list-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .shelter-animal-scroller {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .shelter-list-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
 }

@@ -85,8 +85,8 @@ while ($row = mysqli_fetch_assoc($posts)) {
                         <strong>Community content makes the product feel active, trusted, and human.</strong>
                     </div>
                     <div>
-                        <span class="summary-label">For your FYP demo</span>
-                        <strong>This is where you show the app has a voice, not just forms and dashboards.</strong>
+                        <span class="summary-label">What this adds</span>
+                        <strong>Stories and updates help people connect with the shelters, animals, and the wider mission behind the platform.</strong>
                     </div>
                 </div>
             </div>

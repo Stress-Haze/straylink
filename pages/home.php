@@ -127,9 +127,9 @@ $posts = mysqli_query($conn, "
             </div>
             <div class="col-lg-4">
                 <div class="community-note h-100">
-                    <p class="section-kicker mb-2">For your FYP presentation</p>
-                    <h3 class="fw-bold mb-3">Clear story, stronger interface</h3>
-                    <p class="text-muted mb-4">Visitors see the mission and impact. Logged-in members get a practical app hub. That split usually feels much more believable in a final-year project demo.</p>
+                    <p class="section-kicker mb-2">Built for clarity</p>
+                    <h3 class="fw-bold mb-3">A clearer path from discovery to action</h3>
+                    <p class="text-muted mb-4">Visitors can quickly understand the mission, browse available animals, and move into the right next step without digging through crowded screens.</p>
                     <a href="<?= isLoggedIn() && hasRole('user') ? 'account.php' : '../auth/register.php' ?>" class="btn btn-success w-100">
                         <?= isLoggedIn() && hasRole('user') ? 'Go to My App' : 'Join the Community' ?>
                     </a>
