@@ -75,45 +75,70 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         .shelter-detail-container {
-            max-width: 1400px;
+            max-width: 1320px;
             margin: 0 auto;
         }
 
+        .shelter-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 8px 14px;
+        }
+
         .shelter-header {
-            background: white;
+            background: linear-gradient(180deg, #fffdf9 0%, #f8f1e7 100%);
             border: 1px solid #e2d9ce;
-            border-radius: 12px;
-            padding: 30px;
+            border-radius: 24px;
+            padding: 32px;
             margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 10px 30px rgba(44, 26, 14, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shelter-header::after {
+            content: "";
+            position: absolute;
+            top: -80px;
+            right: -60px;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(25, 135, 84, 0.14) 0%, rgba(25, 135, 84, 0) 70%);
+            pointer-events: none;
         }
 
         .shelter-header-top {
             display: flex;
             align-items: flex-start;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 28px;
+            margin-bottom: 26px;
             flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
         }
 
         .shelter-logo-display {
             width: 140px;
             height: 140px;
-            background: #f0eae0;
-            border-radius: 12px;
+            background: #f4ede3;
+            border-radius: 22px;
             border: 1px solid #e2d9ce;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
         }
 
         .shelter-logo-display img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            padding: 10px;
+            padding: 14px;
         }
 
         .shelter-logo-placeholder {
@@ -126,21 +151,46 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             font-size: 54px;
         }
 
+        .section-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(25, 135, 84, 0.1);
+            color: #146c43;
+            border: 1px solid rgba(25, 135, 84, 0.16);
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+
+        .shelter-header-info {
+            flex: 1 1 420px;
+            max-width: 760px;
+        }
+
         .shelter-header-info h1 {
-            font-size: 2.2rem;
+            font-size: clamp(2rem, 3vw, 2.8rem);
             font-weight: 700;
             color: #2c1a0e;
-            margin: 0 0 12px;
-            line-height: 1.2;
+            margin: 0 0 14px;
+            line-height: 1.1;
         }
 
         .shelter-header-info .info-row {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin: 8px 0;
+            margin: 0 14px 10px 0;
             color: #6b5744;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(226, 217, 206, 0.9);
+            border-radius: 999px;
+            padding: 8px 12px;
         }
 
         .shelter-header-info .info-row a {
@@ -153,23 +203,29 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
         }
 
         .shelter-description {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e2d9ce;
+            margin-top: 14px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(226, 217, 206, 0.9);
             color: #6b5744;
-            line-height: 1.6;
+            line-height: 1.75;
             font-size: 1rem;
+            max-width: 64ch;
         }
 
         .shelter-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            padding: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .stat-box {
-            text-align: center;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid rgba(226, 217, 206, 0.9);
+            border-radius: 18px;
+            padding: 18px 18px 16px;
         }
 
         .stat-box strong {
@@ -177,63 +233,74 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             font-size: 2rem;
             color: #198754;
             font-weight: 700;
+            line-height: 1;
         }
 
         .stat-box span {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: #a08070;
-            margin-top: 4px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
         }
 
         .sidebar-section {
             background: white;
             border: 1px solid #e2d9ce;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 22px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 10px 24px rgba(44, 26, 14, 0.06);
         }
 
         .sidebar-section h3 {
             font-size: 1.1rem;
             font-weight: 700;
             color: #2c1a0e;
-            margin: 0 0 16px;
+            margin: 0 0 18px;
         }
 
         .info-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .info-item {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-start;
             color: #6b5744;
             font-size: 0.95rem;
+            background: #fbf7f1;
+            border: 1px solid #efe5d8;
+            border-radius: 16px;
+            padding: 12px;
         }
 
         .info-item i {
             color: #198754;
             flex-shrink: 0;
+            font-size: 1rem;
+            margin-top: 2px;
         }
 
         #shelter-map {
             width: 100%;
             height: 300px;
-            border-radius: 8px;
+            border-radius: 14px;
             margin-top: 10px;
+            border: 1px solid #efe5d8;
         }
 
         .donate-button {
-            background: #198754;
+            background: linear-gradient(180deg, #198754 0%, #146c43 100%);
             color: white;
             border: none;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: 999px;
             font-weight: 600;
             width: 100%;
             margin-top: 16px;
@@ -245,68 +312,81 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
         }
 
         .donate-button:hover {
-            background: #146c43;
+            background: linear-gradient(180deg, #1d925b 0%, #146c43 100%);
             text-decoration: none;
             color: white;
+            transform: translateY(-1px);
         }
 
         .animals-section {
-            margin-top: 30px;
+            margin-top: 8px;
         }
 
         .animals-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
+            gap: 14px;
+            flex-wrap: wrap;
         }
 
         .animals-header h2 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.65rem;
             font-weight: 700;
             color: #2c1a0e;
         }
 
         .animal-count-badge {
-            background: #198754;
-            color: white;
+            background: rgba(25, 135, 84, 0.12);
+            color: #146c43;
+            border: 1px solid rgba(25, 135, 84, 0.18);
             padding: 8px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .animals-panel {
+            background: white;
+            border: 1px solid #e2d9ce;
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(44, 26, 14, 0.06);
         }
 
         .animals-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 18px;
         }
 
         .animal-card {
-            background: white;
+            background: linear-gradient(180deg, #ffffff 0%, #fcf8f2 100%);
             border: 1px solid #e2d9ce;
-            border-radius: 12px;
+            border-radius: 18px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 6px 16px rgba(44, 26, 14, 0.06);
         }
 
         .animal-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-5px);
+            box-shadow: 0 14px 28px rgba(44, 26, 14, 0.12);
         }
 
         .animal-card-image {
             width: 100%;
-            height: 180px;
+            height: 190px;
             background: #f0eae0;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
         }
 
         .animal-card-image img {
@@ -321,7 +401,7 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
         }
 
         .animal-card-content {
-            padding: 12px;
+            padding: 14px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -329,22 +409,22 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
 
         .animal-card-name {
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: #2c1a0e;
-            margin: 0 0 4px;
+            margin: 0 0 6px;
         }
 
         .animal-card-info {
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: #a08070;
-            margin: 0 0 8px;
+            margin: 0 0 10px;
         }
 
         .animal-card-badges {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .animal-card-badges .badge {
@@ -352,13 +432,31 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             padding: 4px 8px;
         }
 
+        .animal-card-meta {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-size: 0.84rem;
+            color: #6b5744;
+        }
+
+        .animal-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .animal-card-meta i {
+            color: #198754;
+        }
+
         .animal-card-link {
-            background: #198754;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: 600;
+            background: #f1f8f4;
+            color: #146c43;
+            border: 1px solid #cfe5d7;
+            padding: 9px 12px;
+            border-radius: 999px;
+            font-weight: 700;
             font-size: 0.85rem;
             text-decoration: none;
             display: inline-block;
@@ -369,17 +467,18 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
         }
 
         .animal-card-link:hover {
-            background: #146c43;
+            background: #198754;
             color: white;
             text-decoration: none;
+            border-color: #198754;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            background: white;
+            padding: 44px 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #faf4eb 100%);
             border: 1px solid #e2d9ce;
-            border-radius: 12px;
+            border-radius: 18px;
             color: #6b5744;
         }
 
@@ -391,8 +490,8 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
 
         .layout-wrapper {
             display: grid;
-            grid-template-columns: 1fr 2.5fr;
-            gap: 20px;
+            grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+            gap: 24px;
             align-items: start;
         }
 
@@ -405,6 +504,7 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
         @media (max-width: 768px) {
             .shelter-header {
                 padding: 20px;
+                border-radius: 18px;
             }
 
             .shelter-header-top {
@@ -418,12 +518,26 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                 font-size: 1.5rem;
             }
 
+            .shelter-header-info .info-row {
+                margin-right: 0;
+                justify-content: center;
+            }
+
+            .shelter-stats {
+                grid-template-columns: 1fr;
+            }
+
             .animals-grid {
                 grid-template-columns: 1fr;
             }
 
             .layout-wrapper {
                 gap: 16px;
+            }
+
+            .animals-panel,
+            .sidebar-section {
+                padding: 18px;
             }
         }
     </style>
@@ -437,9 +551,8 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
 ?>
 
 <div class="shelter-detail-container py-5 px-3">
-    <a href="shelters.php" class="btn btn-outline-secondary btn-sm mb-4">← Back to Shelters</a>
+    <a href="shelters.php" class="btn btn-outline-secondary btn-sm mb-4 shelter-back-link"><i class="bi bi-arrow-left"></i> Back to Shelters</a>
 
-    <!-- HEADER SECTION -->
     <div class="shelter-header">
         <div class="shelter-header-top">
             <div class="shelter-logo-display">
@@ -452,6 +565,7 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                 <?php endif; ?>
             </div>
             <div class="shelter-header-info">
+                <div class="section-tag"><i class="bi bi-house-heart"></i> Shelter Profile</div>
                 <h1><?= htmlspecialchars($shelter['shelter_name']) ?></h1>
                 <div class="info-row">
                     <i class="bi bi-geo-alt"></i>
@@ -477,7 +591,6 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             </div>
         </div>
 
-        <!-- STATS ROW -->
         <div class="shelter-stats">
             <div class="stat-box">
                 <strong><?= (int)($shelter['total_animals'] ?? 0) ?></strong>
@@ -494,11 +607,8 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
         </div>
     </div>
 
-    <!-- MAIN CONTENT WITH SIDEBAR -->
     <div class="layout-wrapper">
-        <!-- SIDEBAR -->
         <aside>
-            <!-- INFORMATION SECTION -->
             <div class="sidebar-section">
                 <h3>Shelter Details</h3>
                 <div class="info-list">
@@ -529,7 +639,6 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                 <?php endif; ?>
             </div>
 
-            <!-- MAP SECTION -->
             <?php if ($has_map): ?>
                 <div class="sidebar-section">
                     <h3>Location</h3>
@@ -538,9 +647,8 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             <?php endif; ?>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main>
-            <div class="animals-section">
+            <div class="animals-section animals-panel">
                 <div class="animals-header">
                     <h2>Animals in This Shelter</h2>
                     <span class="animal-count-badge"><?= count($animals) ?> animals</span>
@@ -571,11 +679,15 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                                 <div class="animal-card-content">
                                     <h4 class="animal-card-name"><?= htmlspecialchars($animal['name'] ?? 'Unnamed') ?></h4>
                                     <p class="animal-card-info">
-                                        <?= ucfirst($animal['species']) ?> · <?= ucfirst($animal['gender']) ?> · <?= ucfirst($animal['size']) ?>
+                                        <?= ucfirst($animal['species']) ?> | <?= ucfirst($animal['gender']) ?> | <?= ucfirst($animal['size']) ?>
                                     </p>
                                     <div class="animal-card-badges">
                                         <span class="badge <?= $collar_class ?>"><?= ucfirst($animal['collar_status']) ?></span>
                                         <span class="badge <?= $adoption_class ?>"><?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?></span>
+                                    </div>
+                                    <div class="animal-card-meta">
+                                        <span><i class="bi bi-shield-check"></i> <?= $animal['is_vaccinated'] ? 'Vaccinated' : 'Vaccination not listed' ?></span>
+                                        <span><i class="bi bi-clipboard2-pulse"></i> <?= $animal['is_sterilized'] ? 'Sterilized' : 'Sterilization not listed' ?></span>
                                     </div>
                                     <a href="animal.php?id=<?= (int)$animal['id'] ?>" class="animal-card-link">View Profile</a>
                                 </div>
