@@ -172,6 +172,86 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             max-width: 760px;
         }
 
+        .shelter-donation-card {
+            flex: 0 1 290px;
+            min-width: 260px;
+            background: linear-gradient(180deg, rgba(25, 135, 84, 0.12) 0%, rgba(255, 255, 255, 0.96) 100%);
+            border: 1px solid rgba(25, 135, 84, 0.16);
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 12px 24px rgba(20, 108, 67, 0.08);
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .shelter-donation-card .mini-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: fit-content;
+            background: rgba(255, 255, 255, 0.9);
+            color: #146c43;
+            border: 1px solid rgba(25, 135, 84, 0.14);
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .shelter-donation-card h3 {
+            margin: 0;
+            font-size: 1.18rem;
+            line-height: 1.25;
+            color: #2c1a0e;
+        }
+
+        .shelter-donation-card p {
+            margin: 0;
+            color: #6b5744;
+            line-height: 1.6;
+            font-size: 0.92rem;
+        }
+
+        .donation-points {
+            display: grid;
+            gap: 8px;
+            margin: 4px 0 2px;
+        }
+
+        .donation-points span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4e3d2d;
+            font-size: 0.88rem;
+        }
+
+        .donation-points i {
+            color: #198754;
+        }
+
+        .donation-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .donation-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(226, 217, 206, 0.9);
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 0.8rem;
+            color: #6b5744;
+        }
+
         .shelter-header-info h1 {
             font-size: clamp(2rem, 3vw, 2.8rem);
             font-weight: 700;
@@ -514,6 +594,11 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                 gap: 20px;
             }
 
+            .shelter-donation-card {
+                width: 100%;
+                min-width: 0;
+            }
+
             .shelter-header-info h1 {
                 font-size: 1.5rem;
             }
@@ -589,6 +674,24 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                     </div>
                 <?php endif; ?>
             </div>
+            <div class="shelter-donation-card">
+                <div class="mini-tag"><i class="bi bi-heart-fill"></i> Donation</div>
+                <h3>Help this shelter care for more animals.</h3>
+                <p>Support goes toward food, treatment, and day-to-day shelter needs for the animals currently in care.</p>
+                <div class="donation-points">
+                    <span><i class="bi bi-bag-heart"></i> Everyday care and shelter supplies</span>
+                    <span><i class="bi bi-shield-plus"></i> Treatment, recovery, and health support</span>
+                </div>
+                <div class="donation-meta">
+                    <span><i class="bi bi-house-door"></i> Capacity: <?= (int)($shelter['capacity'] ?? 0) ?></span>
+                    <span><i class="bi bi-heart"></i> <?= (int)($shelter['total_animals'] ?? 0) ?> animals listed</span>
+                </div>
+                <?php if ((int)($payment_summary['active_methods'] ?? 0) > 0): ?>
+                    <a href="donate.php?shelter_id=<?= $shelter_id ?>" class="donate-button">Support This Shelter</a>
+                <?php else: ?>
+                    <p class="small text-muted mb-0">Donation methods will appear here once the shelter adds them.</p>
+                <?php endif; ?>
+            </div>
         </div>
 
         <div class="shelter-stats">
@@ -634,9 +737,6 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
                         </div>
                     </div>
                 </div>
-                <?php if ((int)($payment_summary['active_methods'] ?? 0) > 0): ?>
-                    <a href="donate.php?shelter_id=<?= $shelter_id ?>" class="donate-button">Support This Shelter</a>
-                <?php endif; ?>
             </div>
 
             <?php if ($has_map): ?>
