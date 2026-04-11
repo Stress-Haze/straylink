@@ -57,6 +57,9 @@ $shelters = mysqli_query($conn, "
                     <a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link active" href="shelters.php"><i class="bi bi-house"></i> Shelters</a>
                 </li>
                 <li class="nav-item">

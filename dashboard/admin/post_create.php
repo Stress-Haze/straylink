@@ -40,6 +40,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        $inline_images = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $field = 'inline_image_' . $i;
+            $inline_images[$field] = $post[$field] ?? null;
+
+            if (!empty($_FILES[$field]['name'])) {
+                $ext = pathinfo($_FILES[$field]['name'], PATHINFO_EXTENSION);
+                $allowed = ['jpg','jpeg','png','webp'];
+                if (in_array(strtolower($ext), $allowed, true)) {
+                    $filename = 'post_inline_' . $i . '_' . time() . '.' . strtolower($ext);
+                    $upload_path = '../../public/uploads/' . $filename;
+                    move_uploaded_file($_FILES[$field]['tmp_name'], $upload_path);
+                    $inline_images[$field] = $filename;
+                }
+            }
+        }
+
         $published_at = $status === 'published' ? date('Y-m-d H:i:s') : null;
         $published_at_sql = $published_at ? "'$published_at'" : "NULL";
 
@@ -52,6 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     slug  = '" . mysqli_real_escape_string($conn, $slug) . "',
                     body  = '" . mysqli_real_escape_string($conn, $body) . "',
                     cover_image  = " . ($cover_image ? "'" . mysqli_real_escape_string($conn, $cover_image) . "'" : "cover_image") . ",
+                    inline_image_1 = " . ($inline_images['inline_image_1'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_1']) . "'" : "NULL") . ",
+                    inline_image_2 = " . ($inline_images['inline_image_2'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_2']) . "'" : "NULL") . ",
+                    inline_image_3 = " . ($inline_images['inline_image_3'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_3']) . "'" : "NULL") . ",
+                    inline_image_4 = " . ($inline_images['inline_image_4'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_4']) . "'" : "NULL") . ",
+                    inline_image_5 = " . ($inline_images['inline_image_5'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_5']) . "'" : "NULL") . ",
+                    inline_image_6 = " . ($inline_images['inline_image_6'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_6']) . "'" : "NULL") . ",
                     status       = '$status',
                     published_at = $published_at_sql
                 WHERE id = $edit_id
@@ -63,12 +86,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $slug = $slug . '-' . time();
             $author_id = $_SESSION['member_id'];
             mysqli_query($conn, "
-                INSERT INTO posts (author_id, title, slug, body, cover_image, status, published_at)
+                INSERT INTO posts (author_id, title, slug, body, cover_image, inline_image_1, inline_image_2, inline_image_3, inline_image_4, inline_image_5, inline_image_6, status, published_at)
                 VALUES ($author_id, 
                     '" . mysqli_real_escape_string($conn, $title) . "',
                     '" . mysqli_real_escape_string($conn, $slug) . "',
                     '" . mysqli_real_escape_string($conn, $body) . "',
                     " . ($cover_image ? "'" . mysqli_real_escape_string($conn, $cover_image) . "'" : "NULL") . ",
+                    " . ($inline_images['inline_image_1'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_1']) . "'" : "NULL") . ",
+                    " . ($inline_images['inline_image_2'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_2']) . "'" : "NULL") . ",
+                    " . ($inline_images['inline_image_3'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_3']) . "'" : "NULL") . ",
+                    " . ($inline_images['inline_image_4'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_4']) . "'" : "NULL") . ",
+                    " . ($inline_images['inline_image_5'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_5']) . "'" : "NULL") . ",
+                    " . ($inline_images['inline_image_6'] ? "'" . mysqli_real_escape_string($conn, $inline_images['inline_image_6']) . "'" : "NULL") . ",
                     '$status',
                     $published_at_sql
                 )
@@ -115,6 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a>
                 </li>
                 <li class="nav-item">
@@ -147,6 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Body <span class="text-danger">*</span></label>
+                            <div class="form-text mb-2">Place optional image slots anywhere in the article using <code>[image1]</code> to <code>[image6]</code>.</div>
                             <textarea name="body" class="form-control" rows="12" required><?= htmlspecialchars($post['body'] ?? '') ?></textarea>
                         </div>
                         <div class="mb-3">
@@ -157,6 +190,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             <?php endif; ?>
                             <input type="file" name="cover_image" class="form-control" accept="image/*">
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <?php for ($i = 1; $i <= 6; $i++): $field = 'inline_image_' . $i; ?>
+                                <div class="col-md-6">
+                                    <label class="form-label">Inline Image <?= $i ?></label>
+                                    <?php if (!empty($post[$field])): ?>
+                                        <div class="mb-2">
+                                            <img src="../../public/uploads/<?= htmlspecialchars($post[$field]) ?>" height="80" style="border-radius:8px;object-fit:cover;">
+                                        </div>
+                                    <?php endif; ?>
+                                    <input type="file" name="<?= $field ?>" class="form-control" accept="image/*">
+                                    <div class="form-text">Use with <code>[image<?= $i ?>]</code> in the body.</div>
+                                </div>
+                            <?php endfor; ?>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Status</label>
