@@ -48,43 +48,48 @@ $posts = mysqli_query($conn, "
     <div class="container hero-content">
         <div class="row align-items-center g-4">
             <div class="col-lg-7 text-center text-lg-start">
-                <span class="eyebrow-chip mb-3 d-inline-flex">Community animal welfare platform</span>
-                <h1 class="display-4 fw-bold mb-3 text-white">Helping rescuers, shelters, and adopters care for strays together.</h1>
-                <p class="lead mb-4 text-white">StrayLink brings rescue reporting, animal discovery, and community action into one place so every animal gets seen faster and supported better.</p>
+                <span class="eyebrow-chip mb-4 d-inline-flex">
+                    <i class="bi bi-heart-fill me-2"></i>Community Animal Welfare Platform
+                </span>
+                <h1 class="display-3 fw-bold mb-4 text-white">Helping Rescuers, Shelters & Adopters Care for Strays Together</h1>
+                <p class="lead mb-5 text-white fs-5">StrayLink brings rescue reporting, animal discovery, and community action into one place so every animal gets seen faster and supported better.</p>
                 <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-lg-start">
                     <a href="<?= isLoggedIn() && hasRole('user') ? 'account.php' : 'gallery.php' ?>" class="btn btn-light btn-lg text-success fw-bold">
-                        <?= isLoggedIn() && hasRole('user') ? 'Open My App' : 'Browse Animals' ?>
+                        <i class="bi bi-<?= isLoggedIn() && hasRole('user') ? 'box-arrow-up-right' : 'search-heart' ?> me-2"></i>
+                        <?= isLoggedIn() && hasRole('user') ? 'Open My Dashboard' : 'Browse Animals' ?>
                     </a>
-                    <a href="rescue.php" class="btn btn-outline-hero btn-lg">Report a Stray</a>
+                    <a href="rescue.php" class="btn btn-outline-hero btn-lg">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Report a Stray
+                    </a>
                 </div>
             </div>
             <div class="col-lg-5">
                 <div class="hero-panel">
                     <div class="hero-panel-head">
-                        <span>Live community snapshot</span>
+                        <span><i class="bi bi-broadcast me-1"></i>Live Community Stats</span>
                         <span class="status-dot"></span>
                     </div>
                     <div class="hero-panel-grid">
                         <div class="hero-panel-card">
-                            <strong><?= $total_animals ?>+</strong>
-                            <span>Animals listed</span>
+                            <strong><i class="bi bi-dog me-1"></i><?= $total_animals ?>+</strong>
+                            <span>Animals Listed</span>
                         </div>
                         <div class="hero-panel-card">
-                            <strong><?= $total_shelters ?>+</strong>
-                            <span>Partner shelters</span>
+                            <strong><i class="bi bi-house-heart me-1"></i><?= $total_shelters ?>+</strong>
+                            <span>Partner Shelters</span>
                         </div>
                         <div class="hero-panel-card">
-                            <strong><?= $total_adopted ?>+</strong>
-                            <span>Successful adoptions</span>
+                            <strong><i class="bi bi-emoji-smile me-1"></i><?= $total_adopted ?>+</strong>
+                            <span>Successful Adoptions</span>
                         </div>
                         <div class="hero-panel-card">
-                            <strong>24/7</strong>
-                            <span>Rescue reports from the community</span>
+                            <strong><i class="bi bi-clock-history me-1"></i>24/7</strong>
+                            <span>Rescue Reports</span>
                         </div>
                     </div>
                     <div class="hero-panel-footer">
                         <i class="bi bi-heart-pulse"></i>
-                        <span>Built for fast reporting on mobile and clear discovery on desktop.</span>
+                        <span>Built for fast reporting on mobile & clear discovery on desktop.</span>
                     </div>
                 </div>
             </div>
@@ -97,28 +102,30 @@ $posts = mysqli_query($conn, "
         <div class="row g-4 align-items-stretch">
             <div class="col-lg-8">
                 <div class="feature-surface h-100">
-                    <p class="section-kicker mb-2">Why it feels like a community app</p>
-                    <h2 class="fw-bold mb-3">One place for discovering animals, reporting cases, and following through.</h2>
-                    <p class="text-muted mb-4">Instead of acting like a static website, StrayLink should help different people move quickly: adopters browse and track requests, volunteers report issues in the field, and shelters manage care and outreach.</p>
+                    <p class="section-kicker mb-3">
+                        <i class="bi bi-stars me-1"></i>Why It Feels Like a Community App
+                    </p>
+                    <h2 class="fw-bold mb-4 display-6">One place for discovering, reporting, and following through.</h2>
+                    <p class="text-muted mb-5 fs-5">Instead of acting like a static website, StrayLink helps different people move quickly: adopters browse and track requests, volunteers report issues in the field, and shelters manage care and outreach.</p>
                     <div class="feature-points">
                         <div class="feature-point">
                             <i class="bi bi-phone"></i>
                             <div>
-                                <strong>Mobile-first actions</strong>
+                                <strong>Mobile-First Actions</strong>
                                 <span>Fast rescue reporting and personal updates without desktop-only tables.</span>
                             </div>
                         </div>
                         <div class="feature-point">
                             <i class="bi bi-people"></i>
                             <div>
-                                <strong>Community trust signals</strong>
+                                <strong>Community Trust Signals</strong>
                                 <span>Karma, progress, and approved actions make participation visible.</span>
                             </div>
                         </div>
                         <div class="feature-point">
                             <i class="bi bi-house-heart"></i>
                             <div>
-                                <strong>Real shelter pathways</strong>
+                                <strong>Real Shelter Pathways</strong>
                                 <span>Animals, shelters, and adoption requests stay connected in one flow.</span>
                             </div>
                         </div>
@@ -126,12 +133,15 @@ $posts = mysqli_query($conn, "
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="community-note h-100">
-                    <p class="section-kicker mb-2">Built for clarity</p>
-                    <h3 class="fw-bold mb-3">A clearer path from discovery to action</h3>
-                    <p class="text-muted mb-4">Visitors can quickly understand the mission, browse available animals, and move into the right next step without digging through crowded screens.</p>
-                    <a href="<?= isLoggedIn() && hasRole('user') ? 'account.php' : '../auth/register.php' ?>" class="btn btn-success w-100">
-                        <?= isLoggedIn() && hasRole('user') ? 'Go to My App' : 'Join the Community' ?>
+                <div class="community-note h-100" style="background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: #fff; border: none;">
+                    <p class="section-kicker mb-3" style="color: rgba(255,255,255,0.9);">
+                        <i class="bi bi-gem me-1"></i>Built for Clarity
+                    </p>
+                    <h3 class="fw-bold mb-4" style="color: #ffffff;">A clearer path from discovery to action</h3>
+                    <p class="mb-4" style="color: rgba(255,255,255,0.95);">Visitors can quickly understand the mission, browse available animals, and move into the right next step without digging through crowded screens.</p>
+                    <a href="<?= isLoggedIn() && hasRole('user') ? 'account.php' : '../auth/register.php' ?>" class="btn btn-light w-100 text-success fw-bold">
+                        <i class="bi bi-<?= isLoggedIn() && hasRole('user') ? 'speedometer2' : 'person-plus' ?> me-1"></i>
+                        <?= isLoggedIn() && hasRole('user') ? 'Go to My Dashboard' : 'Join the Community' ?>
                     </a>
                 </div>
             </div>

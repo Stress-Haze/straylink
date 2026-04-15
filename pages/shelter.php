@@ -444,24 +444,42 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
 
         .animal-card {
             background: linear-gradient(180deg, #ffffff 0%, #fcf8f2 100%);
-            border: 1px solid #e2d9ce;
-            border-radius: 18px;
+            border: 2px solid #e2d9ce;
+            border-radius: 24px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 16px rgba(44, 26, 14, 0.06);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(44, 26, 14, 0.08);
+            position: relative;
+        }
+
+        .animal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #198754 0%, #146c43 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .animal-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 14px 28px rgba(44, 26, 14, 0.12);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 16px 32px rgba(25, 135, 84, 0.15);
+            border-color: #198754;
+        }
+
+        .animal-card:hover::before {
+            opacity: 1;
         }
 
         .animal-card-image {
             width: 100%;
-            height: 190px;
-            background: #f0eae0;
+            height: 200px;
+            background: linear-gradient(135deg, #f0eae0 0%, #e8dfd3 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -469,29 +487,59 @@ $has_map = !empty($shelter['latitude']) && !empty($shelter['longitude']);
             position: relative;
         }
 
+        .animal-card-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(to top, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+
         .animal-card-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: brightness(0.98) saturate(1.05);
+        }
+
+        .animal-card:hover .animal-card-image img {
+            transform: scale(1.08);
+            filter: brightness(1) saturate(1.15);
         }
 
         .animal-card-image-placeholder {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: #a08070;
+            transition: transform 0.3s ease;
+        }
+
+        .animal-card:hover .animal-card-image-placeholder {
+            transform: scale(1.1);
         }
 
         .animal-card-content {
-            padding: 14px;
+            padding: 16px;
             flex: 1;
             display: flex;
             flex-direction: column;
+            background: linear-gradient(180deg, #ffffff 0%, #faf8f5 100%);
         }
 
         .animal-card-name {
             font-weight: 700;
-            font-size: 1.05rem;
+            font-size: 1.15rem;
             color: #2c1a0e;
-            margin: 0 0 6px;
+            margin: 0 0 8px;
+            font-family: 'Playfair Display', serif;
+            transition: color 0.3s ease;
+        }
+
+        .animal-card:hover .animal-card-name {
+            color: #198754;
         }
 
         .animal-card-info {

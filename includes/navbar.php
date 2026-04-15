@@ -52,8 +52,8 @@ $root = str_repeat('../', $depth);
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>auth/logout.php">Logout</a></li>
                     <?php endif; ?>
                 <?php else: ?>
-                    <li class="nav-item"><a class="btn btn-light btn-sm" href="<?= $root ?>auth/login.php">Login</a></li>
-                    <li class="nav-item"><a class="btn btn-light btn-sm" href="<?= $root ?>auth/register.php">Register</a></li>
+                    <li class="nav-item"><a class="btn btn-outline-light btn-sm px-3" href="<?= $root ?>auth/login.php"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
+                    <li class="nav-item"><a class="btn btn-light btn-sm px-3 text-success fw-bold" href="<?= $root ?>auth/register.php"><i class="bi bi-person-plus me-1"></i>Register</a></li>
                 <?php endif; ?>
             </ul>
         </div>

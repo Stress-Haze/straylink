@@ -97,40 +97,52 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
 ?>
 
 <div class="container py-5">
-    <a href="gallery.php" class="btn btn-outline-secondary btn-sm mb-4">Back to Gallery</a>
+    <a href="gallery.php" class="btn btn-outline-secondary btn-sm mb-4">
+        <i class="bi bi-arrow-left me-1"></i>Back to Gallery
+    </a>
 
     <section class="animal-hero mb-4">
         <div class="row g-4 align-items-center">
             <div class="col-lg-8">
                 <div class="d-flex flex-wrap gap-2 mb-3">
-                    <span class="badge <?= $collar_class ?>"><?= $collar_label ?></span>
-                    <span class="badge <?= $status_class ?>"><?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?></span>
-                    <span class="badge text-bg-light border"><?= $animal['is_in_shelter'] ? 'In shelter care' : 'Outside monitored' ?></span>
+                    <span class="badge <?= $collar_class ?>">
+                        <i class="bi bi-<?= $animal['collar_status'] === 'green' ? 'check-circle' : ($animal['collar_status'] === 'yellow' ? 'exclamation-triangle' : 'x-circle') ?> me-1"></i>
+                        <?= $collar_label ?>
+                    </span>
+                    <span class="badge <?= $status_class ?>">
+                        <i class="bi bi-heart-fill me-1"></i>
+                        <?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?>
+                    </span>
+                    <span class="badge text-bg-light border">
+                        <i class="bi bi-<?= $animal['is_in_shelter'] ? 'house' : 'geo-alt' ?> me-1"></i>
+                        <?= $animal['is_in_shelter'] ? 'In Shelter Care' : 'Outside Monitored' ?>
+                    </span>
                 </div>
                 <h1 class="fw-bold mb-2"><?= htmlspecialchars($animal['name'] ?? 'Unnamed') ?></h1>
                 <p class="text-muted mb-3 animal-subtitle">
+                    <i class="bi bi-<?= $animal['species'] === 'dog' ? 'dog' : ($animal['species'] === 'cat' ? 'cat' : 'box') ?> me-2"></i>
                     <?= ucfirst($animal['species']) ?>
-                    <?= !empty($animal['breed']) ? ' · ' . htmlspecialchars($animal['breed']) : '' ?>
+                    <?= !empty($animal['breed']) ? ' · <strong>' . htmlspecialchars($animal['breed']) . '</strong>' : '' ?>
                     · <?= ucfirst($animal['gender']) ?>
                     · <?= ucfirst($animal['size']) ?>
                     <?php if ($animal['age_years'] || $animal['age_months']): ?>
-                        · <?= $animal['age_years'] ? (int)$animal['age_years'] . 'y ' : '' ?><?= $animal['age_months'] ? (int)$animal['age_months'] . 'm' : '' ?>
+                        · <strong><?= $animal['age_years'] ? (int)$animal['age_years'] . 'y ' : '' ?><?= $animal['age_months'] ? (int)$animal['age_months'] . 'm' : '' ?></strong>
                     <?php endif; ?>
                 </p>
-                <p class="text-muted mb-0">A clearer profile screen helps users understand care status quickly and decide whether to contact, adopt, or keep monitoring.</p>
+                <p class="text-muted mb-0">Profile screen for understanding care status and deciding next actions.</p>
             </div>
             <div class="col-lg-4">
                 <div class="animal-summary-panel">
                     <div class="summary-stat compact">
-                        <strong><?= count($health_items) ?></strong>
-                        <span>Health records</span>
+                        <strong><i class="bi bi-file-medical me-1"></i><?= count($health_items) ?></strong>
+                        <span>Health Records</span>
                     </div>
                     <div class="summary-stat compact">
-                        <strong><?= $animal['is_vaccinated'] ? 'Yes' : 'No' ?></strong>
+                        <strong><i class="bi bi-shield-check me-1"></i><?= $animal['is_vaccinated'] ? 'Yes' : 'No' ?></strong>
                         <span>Vaccinated</span>
                     </div>
                     <div class="summary-stat compact">
-                        <strong><?= $animal['is_sterilized'] ? 'Yes' : 'No' ?></strong>
+                        <strong><i class="bi bi-heart-pulse me-1"></i><?= $animal['is_sterilized'] ? 'Yes' : 'No' ?></strong>
                         <span>Sterilized</span>
                     </div>
                 </div>
@@ -140,7 +152,7 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
 
     <div class="row g-4 align-items-start">
         <div class="col-lg-7">
-            <div class="card shadow-sm overflow-hidden mb-4">
+            <div class="card shadow-sm overflow-hidden mb-4" style="border: 2px solid var(--green-light);">
                 <?php if ($primary): ?>
                     <img src="../public/uploads/<?= htmlspecialchars($primary['photo_path']) ?>" class="img-fluid main-photo animal-main-photo" alt="<?= htmlspecialchars($animal['name'] ?? 'Animal photo') ?>">
                 <?php else: ?>
@@ -151,72 +163,82 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
                 <?php if (count($photos_arr) > 1): ?>
                 <div class="animal-thumb-strip">
                     <?php foreach ($photos_arr as $p): ?>
-                        <button type="button" class="animal-thumb-btn" onclick="document.querySelector('.main-photo').src='<?= '../public/uploads/' . htmlspecialchars($p['photo_path'], ENT_QUOTES) ?>'">
-                            <img src="../public/uploads/<?= htmlspecialchars($p['photo_path']) ?>" alt="Thumbnail for <?= htmlspecialchars($animal['name'] ?? 'animal') ?>">
+                        <button type="button" class="animal-thumb-btn" onclick="document.querySelector('.main-photo').src='../public/uploads/<?= htmlspecialchars($p['photo_path']) ?>'">
+                            <img src="../public/uploads/<?= htmlspecialchars($p['photo_path']) ?>" alt="Thumbnail">
                         </button>
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
             </div>
 
-            <div class="row g-3 mb-4">
+            <div class="row g-3 mb-5">
                 <div class="col-sm-6 col-xl-3">
                     <div class="animal-info-tile">
-                        <small>Vaccinated</small>
-                        <strong><?= $animal['is_vaccinated'] ? 'Yes' : 'No' ?></strong>
+                        <small><i class="bi bi-shield-check me-1"></i>Vaccinated</small>
+                        <strong><?= $animal['is_vaccinated'] ? '<span class="text-success">Yes</span>' : '<span class="text-muted">No</span>' ?></strong>
                     </div>
                 </div>
                 <div class="col-sm-6 col-xl-3">
                     <div class="animal-info-tile">
-                        <small>Sterilized</small>
-                        <strong><?= $animal['is_sterilized'] ? 'Yes' : 'No' ?></strong>
+                        <small><i class="bi bi-heart-pulse me-1"></i>Sterilized</small>
+                        <strong><?= $animal['is_sterilized'] ? '<span class="text-success">Yes</span>' : '<span class="text-muted">No</span>' ?></strong>
                     </div>
                 </div>
                 <div class="col-sm-6 col-xl-3">
                     <div class="animal-info-tile">
-                        <small>Adoption</small>
+                        <small><i class="bi bi-heart-fill me-1"></i>Adoption</small>
                         <strong><?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?></strong>
                     </div>
                 </div>
                 <div class="col-sm-6 col-xl-3">
                     <div class="animal-info-tile">
-                        <small>Location</small>
-                        <strong><?= $animal['is_in_shelter'] ? 'Shelter' : 'Outside' ?></strong>
+                        <small><i class="bi bi-geo-alt-fill me-1"></i>Location</small>
+                        <strong><?= $animal['is_in_shelter'] ? 'In Shelter' : 'Outside' ?></strong>
                     </div>
                 </div>
             </div>
 
             <?php if ($animal['description']): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header fw-bold">About <?= htmlspecialchars($animal['name'] ?? 'This Animal') ?></div>
-                <div class="card-body">
-                    <p class="text-muted"><?= nl2br(htmlspecialchars($animal['description'])) ?></p>
+            <div class="card shadow-sm mb-4" style="border-left: 4px solid var(--green);">
+                <div class="card-header fw-bold text-success py-2">
+                    <i class="bi bi-chat-heart me-2"></i>About <?= htmlspecialchars($animal['name'] ?? 'This Animal') ?>
+                </div>
+                <div class="card-body py-3">
+                    <p class="text-muted mb-0"><?= nl2br(htmlspecialchars($animal['description'])) ?></p>
                 </div>
             </div>
             <?php endif; ?>
 
             <?php if ($animal['is_in_shelter'] && $animal['shelter_name']): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header fw-bold"><i class="bi bi-house-heart text-success"></i> Shelter Information</div>
-                <div class="card-body">
-                    <h5 class="fw-bold mb-2"><?= htmlspecialchars($animal['shelter_name']) ?></h5>
+            <div class="card shadow-sm mb-4" style="border: 2px solid var(--green-light); background: linear-gradient(135deg, #ffffff 0%, #f5fdf8 100%);">
+                <div class="card-header fw-bold text-success py-2">
+                    <i class="bi bi-house-heart me-2"></i>Shelter Information
+                </div>
+                <div class="card-body py-3">
+                    <h5 class="fw-bold mb-2 text-success"><?= htmlspecialchars($animal['shelter_name']) ?></h5>
                     <?php if ($animal['address'] || $animal['city']): ?>
-                        <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> <?= htmlspecialchars(trim(($animal['address'] ?? '') . ', ' . ($animal['city'] ?? ''), ', ')) ?></p>
+                        <p class="text-muted mb-2"><i class="bi bi-geo-alt-fill text-success me-2"></i><?= htmlspecialchars(trim(($animal['address'] ?? '') . ', ' . ($animal['city'] ?? ''), ', ')) ?></p>
                     <?php endif; ?>
                     <?php if ($animal['contact_number']): ?>
-                        <p class="mb-0"><i class="bi bi-telephone"></i> <a href="tel:<?= htmlspecialchars($animal['contact_number']) ?>" class="text-success fw-bold"><?= htmlspecialchars($animal['contact_number']) ?></a></p>
+                        <p class="mb-2"><i class="bi bi-telephone-fill text-success me-2"></i><a href="tel:<?= htmlspecialchars($animal['contact_number']) ?>" class="text-success fw-bold"><?= htmlspecialchars($animal['contact_number']) ?></a></p>
                     <?php endif; ?>
-                    <div class="mt-3">
-                        <a href="shelter.php?id=<?= (int)$animal['shelter_id'] ?>" class="btn btn-success me-2 mb-2">View Shelter</a>
-                        <a href="donate.php?shelter_id=<?= (int)$animal['shelter_id'] ?>" class="btn btn-outline-success">Support This Shelter</a>
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                        <a href="shelter.php?id=<?= (int)$animal['shelter_id'] ?>" class="btn btn-success btn-sm">
+                            <i class="bi bi-house me-1"></i>View Shelter
+                        </a>
+                        <a href="donate.php?shelter_id=<?= (int)$animal['shelter_id'] ?>" class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-cash-coin me-1"></i>Support This Shelter
+                        </a>
                     </div>
                 </div>
             </div>
             <?php elseif (!$animal['is_in_shelter'] && $animal['location_label']): ?>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header fw-bold"><i class="bi bi-geo-alt text-success"></i> Last Known Location</div>
-                <div class="card-body">
-                    <p class="text-muted mb-0"><?= htmlspecialchars($animal['location_label']) ?></p>
+            <div class="card shadow-sm mb-4" style="border-left: 4px solid var(--green);">
+                <div class="card-header fw-bold text-success py-2">
+                    <i class="bi bi-geo-alt-fill me-2"></i>Last Known Location
+                </div>
+                <div class="card-body py-3">
+                    <p class="text-muted mb-0"><i class="bi bi-pin-map-fill text-success me-2"></i><?= htmlspecialchars($animal['location_label']) ?></p>
                 </div>
             </div>
             <?php endif; ?>
@@ -278,31 +300,42 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
             <div class="animal-side-stack">
                 <div class="card shadow-sm animal-action-card">
                     <div class="card-body">
-                        <p class="section-kicker mb-2">Adoption readiness</p>
-                        <h4 class="fw-bold mb-2"><?= $availability_note ?></h4>
-                        <p class="text-muted mb-3">Use this panel as the main next-action area on mobile and desktop.</p>
+                        <p class="section-kicker mb-3">
+                            <i class="bi bi-stars me-1"></i>Adoption Readiness
+                        </p>
+                        <h4 class="fw-bold mb-3 text-success"><?= $availability_note ?></h4>
+                        <p class="text-muted mb-4">Your main next-action area for adopting this animal.</p>
 
                         <?php if ($request_error): ?>
-                            <div class="alert alert-danger"><?= $request_error ?></div>
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i><?= $request_error ?>
+                            </div>
                         <?php endif; ?>
                         <?php if ($request_success): ?>
-                            <div class="alert alert-success"><?= $request_success ?></div>
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle me-2"></i><?= $request_success ?>
+                            </div>
                         <?php endif; ?>
 
                         <?php if ($animal['is_in_shelter'] && $animal['adoption_status'] === 'available'): ?>
                             <?php if (isLoggedIn() && hasRole('user')): ?>
                                 <form method="POST">
                                     <div class="mb-3">
-                                        <label class="form-label">Message to Shelter <small class="text-muted">(optional)</small></label>
-                                        <textarea name="message" class="form-control" rows="4" placeholder="Tell the shelter a bit about yourself and why you'd like to adopt..."></textarea>
+                                        <label class="form-label fw-bold">
+                                            <i class="bi bi-chat-heart me-1"></i>Message to Shelter 
+                                            <small class="text-muted fw-normal">(optional)</small>
+                                        </label>
+                                        <textarea name="message" class="form-control" rows="3" placeholder="Tell the shelter about yourself and why you'd like to adopt..." style="border-radius: 12px;"></textarea>
                                     </div>
                                     <button type="submit" name="adopt" class="btn btn-success w-100">
-                                        <i class="bi bi-heart"></i> Send Adoption Request
+                                        <i class="bi bi-heart-fill me-2"></i>Send Adoption Request
                                     </button>
                                 </form>
                             <?php elseif (!isLoggedIn()): ?>
                                 <p class="text-muted mb-3">You need to be logged in to send an adoption request.</p>
-                                <a href="../auth/login.php" class="btn btn-success w-100">Login to Adopt</a>
+                                <a href="../auth/login.php" class="btn btn-success w-100">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Login to Adopt
+                                </a>
                             <?php else: ?>
                                 <p class="text-muted mb-0">Only registered users can submit adoption requests.</p>
                             <?php endif; ?>
@@ -314,17 +347,19 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
 
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="fw-bold mb-3">Quick Facts</h5>
+                        <h5 class="fw-bold mb-3 text-success">
+                            <i class="bi bi-info-circle me-2"></i>Quick Facts
+                        </h5>
                         <div class="gallery-meta-list single-column">
-                            <span><i class="bi bi-shield-check"></i> Collar status: <?= $collar_label ?></span>
-                            <span><i class="bi bi-clipboard-heart"></i> Adoption status: <?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?></span>
+                            <span><i class="bi bi-shield-check"></i> Collar: <?= $collar_label ?></span>
+                            <span><i class="bi bi-clipboard-heart"></i> Adoption: <?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?></span>
                             <?php if (!empty($animal['reporter'])): ?>
-                                <span><i class="bi bi-person"></i> Reported by: <?= htmlspecialchars($animal['reporter']) ?></span>
+                                <span><i class="bi bi-person-fill"></i> Reported by: <?= htmlspecialchars($animal['reporter']) ?></span>
                             <?php endif; ?>
                             <?php if ($animal['is_in_shelter'] && !empty($animal['shelter_name'])): ?>
-                                <span><i class="bi bi-house"></i> Shelter: <?= htmlspecialchars($animal['shelter_name']) ?></span>
+                                <span><i class="bi bi-house-fill"></i> Shelter: <?= htmlspecialchars($animal['shelter_name']) ?></span>
                             <?php elseif (!$animal['is_in_shelter'] && !empty($animal['location_label'])): ?>
-                                <span><i class="bi bi-pin-map"></i> Area: <?= htmlspecialchars($animal['location_label']) ?></span>
+                                <span><i class="bi bi-pin-map-fill"></i> Area: <?= htmlspecialchars($animal['location_label']) ?></span>
                             <?php endif; ?>
                         </div>
                     </div>

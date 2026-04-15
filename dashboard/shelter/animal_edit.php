@@ -71,13 +71,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle new photo uploads
         if (!empty($_FILES['photos']['name'][0])) {
             $allowed = ['jpg','jpeg','png','webp'];
+            $first_new_primary = false;
             foreach ($_FILES['photos']['tmp_name'] as $key => $tmp) {
                 if ($_FILES['photos']['error'][$key] === 0) {
                     $ext = pathinfo($_FILES['photos']['name'][$key], PATHINFO_EXTENSION);
                     if (in_array(strtolower($ext), $allowed)) {
                         $filename = 'animal_' . $animal_id . '_' . time() . '_' . $key . '.' . $ext;
                         move_uploaded_file($tmp, '../../public/uploads/' . $filename);
-                        mysqli_query($conn, "INSERT INTO animal_photos (animal_id, photo_path, is_primary) VALUES ($animal_id, '$filename', 0)");
+                        
+                        // First uploaded photo becomes the new primary
+                        $is_primary = !$first_new_primary ? 1 : 0;
+                        if ($is_primary) {
+                            // Unset any existing primary photo
+                            mysqli_query($conn, "UPDATE animal_photos SET is_primary = 0 WHERE animal_id = $animal_id");
+                            $first_new_primary = true;
+                        }
+                        mysqli_query($conn, "INSERT INTO animal_photos (animal_id, photo_path, is_primary) VALUES ($animal_id, '$filename', $is_primary)");
                     }
                 }
             }

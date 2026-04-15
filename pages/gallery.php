@@ -97,41 +97,43 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
 ?>
 
 <div class="container py-5">
-    <section class="gallery-hero mb-4">
+    <section class="gallery-hero mb-5">
         <div class="row g-4 align-items-center">
             <div class="col-lg-7">
-                <p class="section-kicker mb-2">Adoption gallery</p>
-                <h1 class="fw-bold mb-3">Browse animals, check their status, and follow the right next step.</h1>
-                <p class="text-muted mb-4">This page is designed to work like a community browse screen: quick filtering on mobile, richer cards on desktop, and enough detail to decide where to tap next.</p>
+                <p class="section-kicker mb-3">
+                    <i class="bi bi-heart-fill text-success me-2"></i>Adoption Gallery
+                </p>
+                <h1 class="fw-bold mb-3 display-5">Find Your Perfect Companion</h1>
+                <p class="text-muted mb-4 fs-5">Browse loving animals waiting for their forever home. Every life matters, and your choice can change everything.</p>
                 <div class="gallery-chip-row">
-                    <span class="gallery-chip"><strong><?= $total_results ?></strong> results</span>
-                    <span class="gallery-chip"><strong><?= $available_count ?></strong> available</span>
-                    <span class="gallery-chip"><strong><?= $shelter_count ?></strong> in shelter</span>
+                    <span class="gallery-chip"><i class="bi bi-grid-3x3-gap me-1"></i><strong><?= $total_results ?></strong> animals</span>
+                    <span class="gallery-chip"><i class="bi bi-check-circle me-1"></i><strong><?= $available_count ?></strong> available</span>
+                    <span class="gallery-chip"><i class="bi bi-house-heart me-1"></i><strong><?= $shelter_count ?></strong> in shelter</span>
                 </div>
             </div>
             <div class="col-lg-5">
                 <div class="gallery-summary-card">
                     <div>
-                        <span class="summary-label">Best for adopters</span>
+                        <span class="summary-label"><i class="bi bi-stars me-1"></i>Best for Adopters</span>
                         <strong>Use filters to narrow by species, collar status, and readiness.</strong>
                     </div>
                     <div>
-                        <span class="summary-label">Best for quick mobile use</span>
-                        <strong>Open profiles directly from the first card view without hunting for details.</strong>
+                        <span class="summary-label"><i class="bi bi-phone me-1"></i>Quick Mobile Access</span>
+                        <strong>Open profiles directly from card views without hunting for details.</strong>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <form method="GET" class="card shadow-sm p-3 mb-4 filter-surface">
+    <form method="GET" class="card shadow p-4 mb-5 filter-surface" style="border: 2px solid var(--green-light); background: linear-gradient(135deg, #ffffff 0%, #f8faf6 100%);">
         <div class="row g-3 align-items-end">
             <div class="col-lg-3 col-md-6">
-                <label class="form-label small fw-bold">Search</label>
+                <label class="form-label small fw-bold text-success"><i class="bi bi-search me-1"></i>Search</label>
                 <input type="text" name="search" class="form-control" placeholder="Name, breed, or location" value="<?= htmlspecialchars($search) ?>">
             </div>
             <div class="col-lg-2 col-md-6">
-                <label class="form-label small fw-bold">Species</label>
+                <label class="form-label small fw-bold text-success"><i class="bi bi-paw me-1"></i>Species</label>
                 <select name="species" class="form-select">
                     <option value="">All Species</option>
                     <option value="dog" <?= $species === 'dog' ? 'selected' : '' ?>>Dog</option>
@@ -140,7 +142,7 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
                 </select>
             </div>
             <div class="col-lg-2 col-md-6">
-                <label class="form-label small fw-bold">Collar</label>
+                <label class="form-label small fw-bold text-success"><i class="bi bi-tag me-1"></i>Collar</label>
                 <select name="collar" class="form-select">
                     <option value="">All</option>
                     <option value="green" <?= $collar === 'green' ? 'selected' : '' ?>>Green</option>
@@ -149,7 +151,7 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
                 </select>
             </div>
             <div class="col-lg-2 col-md-6">
-                <label class="form-label small fw-bold">Adoption</label>
+                <label class="form-label small fw-bold text-success"><i class="bi bi-heart me-1"></i>Adoption</label>
                 <select name="status" class="form-select">
                     <option value="">All</option>
                     <option value="available" <?= $status === 'available' ? 'selected' : '' ?>>Available</option>
@@ -158,24 +160,26 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
                     <option value="not_available" <?= $status === 'not_available' ? 'selected' : '' ?>>Not Available</option>
                 </select>
             </div>
-            <div class="col-lg-2 col-md-6">
-                <label class="form-label small fw-bold">Location Type</label>
+            <div class="col-lg-2 col-md-4">
+                <label class="form-label small fw-bold text-success"><i class="bi bi-geo-alt me-1"></i>Location Type</label>
                 <select name="type" class="form-select">
                     <option value="">All</option>
                     <option value="shelter" <?= $type === 'shelter' ? 'selected' : '' ?>>In Shelter</option>
-                    <option value="outside" <?= $type === 'outside' ? 'selected' : '' ?>>Outside</option>
+                    <option value="outside" <?= $type === 'outside' ? 'selected' : '' ?>>Outside Monitored</option>
                 </select>
             </div>
-            <div class="col-lg-1 col-md-6 d-grid">
-                <button type="submit" class="btn btn-success">Go</button>
+            <div class="col-lg-1 col-md-4 d-grid">
+                <button type="submit" class="btn btn-success"><i class="bi bi-funnel me-1"></i>Filter</button>
             </div>
         </div>
         <?php if ($active_filters): ?>
-            <div class="active-filter-row mt-3">
+            <div class="active-filter-row mt-3 d-flex flex-wrap align-items-center gap-2">
                 <?php foreach ($active_filters as $filter): ?>
                     <span class="active-filter-pill"><?= htmlspecialchars($filter) ?></span>
                 <?php endforeach; ?>
-                <a href="gallery.php" class="btn btn-link btn-sm p-0">Clear all</a>
+                <a href="gallery.php" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x-circle me-1"></i>Clear All
+                </a>
             </div>
         <?php endif; ?>
     </form>
@@ -190,13 +194,15 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
     </div>
     <?php endif; ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold mb-1">Browse Results</h2>
-            <p class="text-muted"><?= $total_results ?> animals currently match your filters.</p>
+            <h2 class="fw-bold mb-1 text-success"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Browse Results</h2>
+            <p class="text-muted mb-0"><?= $total_results ?> animals currently match your filters</p>
         </div>
         <?php if (isLoggedIn() && hasRole('user')): ?>
-            <a href="account.php" class="btn btn-outline-success">Go to My App</a>
+            <a href="account.php" class="btn btn-outline-success">
+                <i class="bi bi-house-heart me-1"></i>Go to My App
+            </a>
         <?php endif; ?>
     </div>
 
@@ -204,29 +210,32 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
     <?php foreach ($animals_list as $a): ?>
         <?php
             $collar_class = $a['collar_status'] === 'green' ? 'bg-success' : ($a['collar_status'] === 'yellow' ? 'text-bg-warning' : 'bg-danger');
-            $collar_label = $a['collar_status'] === 'green' ? 'Ready' : ($a['collar_status'] === 'yellow' ? 'In treatment' : 'Critical');
+            $collar_label = $a['collar_status'] === 'green' ? '✓ Ready' : ($a['collar_status'] === 'yellow' ? '⚕ In Treatment' : '🚨 Critical');
             $adoption_class = $a['adoption_status'] === 'available' ? 'bg-success' : ($a['adoption_status'] === 'reserved' ? 'text-bg-warning' : 'bg-secondary');
         ?>
         <div class="col-md-6 col-xl-4">
             <div class="card shadow-sm h-100 gallery-card">
                 <div class="gallery-card-media">
-                    <?php if ($a['photo']): ?>
-                        <img src="../public/uploads/<?= htmlspecialchars($a['photo']) ?>" class="card-img-top" style="height:240px;object-fit:cover;" alt="<?= htmlspecialchars($a['name'] ?? 'Animal photo') ?>">
+                    <?php if (!empty($a['photo'])): ?>
+                        <img src="../public/uploads/<?= htmlspecialchars($a['photo']) ?>" class="card-img-top" alt="<?= htmlspecialchars($a['name'] ?? 'Animal photo') ?>">
                     <?php else: ?>
                         <div class="bg-light d-flex align-items-center justify-content-center" style="height:240px;">
                             <i class="bi bi-image text-muted" style="font-size:3rem;"></i>
                         </div>
                     <?php endif; ?>
                     <div class="gallery-card-badges">
-                        <span class="badge <?= $collar_class ?>"><?= $collar_label ?></span>
-                        <span class="badge <?= $adoption_class ?>"><?= ucfirst(str_replace('_', ' ', $a['adoption_status'])) ?></span>
+                        <span class="badge <?= $collar_class ?>"><i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i><?= $collar_label ?></span>
+                        <span class="badge <?= $adoption_class ?>"><i class="bi bi-heart-fill me-1" style="font-size:0.5rem;"></i><?= ucfirst(str_replace('_', ' ', $a['adoption_status'])) ?></span>
                     </div>
                 </div>
                 <div class="card-body d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                         <div>
-                            <h5 class="card-title mb-1"><?= htmlspecialchars($a['name'] ?? 'Unnamed') ?></h5>
-                            <p class="text-muted small"><?= ucfirst($a['species']) ?> · <?= ucfirst($a['gender']) ?> · <?= ucfirst($a['size']) ?></p>
+                            <h5 class="card-title mb-2"><?= htmlspecialchars($a['name'] ?? 'Unnamed') ?></h5>
+                            <p class="text-muted small mb-0">
+                                <i class="bi bi-<?= $a['species'] === 'dog' ? 'dog' : ($a['species'] === 'cat' ? 'cat' : 'box') ?> me-1"></i>
+                                <?= ucfirst($a['species']) ?> · <?= ucfirst($a['gender']) ?> · <?= ucfirst($a['size']) ?>
+                            </p>
                         </div>
                     </div>
                     <div class="gallery-meta-list mb-3">
@@ -240,7 +249,9 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
                         <?php endif; ?>
                         <span><i class="bi bi-clipboard2-pulse"></i> <?= $a['is_in_shelter'] ? 'In shelter care' : 'Outside monitored' ?></span>
                     </div>
-                    <a href="animal.php?id=<?= $a['id'] ?>" class="btn btn-success w-100 mt-auto">View Profile</a>
+                    <a href="animal.php?id=<?= $a['id'] ?>" class="btn btn-success w-100 mt-auto">
+                        <i class="bi bi-eye me-1"></i>View Profile
+                    </a>
                 </div>
             </div>
         </div>
@@ -248,9 +259,14 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
 
     <?php if ($total_results === 0): ?>
         <div class="col-12 text-center text-muted py-5">
-            <i class="bi bi-search" style="font-size:3rem;"></i>
-            <p class="mt-3 mb-3">No animals found matching your filters.</p>
-            <a href="gallery.php" class="btn btn-outline-success">Clear Filters</a>
+            <div class="mb-4">
+                <i class="bi bi-emoji-frown text-muted" style="font-size:4rem;"></i>
+            </div>
+            <h4 class="mb-3">No animals found</h4>
+            <p class="mb-4">Try adjusting your filters to find more animals.</p>
+            <a href="gallery.php" class="btn btn-success btn-lg">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Clear All Filters
+            </a>
         </div>
     <?php endif; ?>
     </div>
