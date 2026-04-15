@@ -855,7 +855,7 @@ footer { border-top: 3px solid var(--green-dark); }
   max-width: 860px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .rescue-hero,
   .blog-hero,
   .blog-post-shell {

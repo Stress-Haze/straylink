@@ -153,6 +153,12 @@ $first_name = $first_name_parts[0] ?? 'Friend';
                         <i class="bi bi-journal-richtext"></i>
                         <span>Read stories</span>
                     </a>
+                    <?php if (canPostBlog($member['karma'])): ?>
+                        <a href="create_post.php" class="quick-action-card">
+                            <i class="bi bi-pencil-square"></i>
+                            <span>Write post</span>
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="col-lg-4">
@@ -371,6 +377,7 @@ $first_name = $first_name_parts[0] ?? 'Friend';
                                     <th>Title</th>
                                     <th>Status</th>
                                     <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -383,6 +390,10 @@ $first_name = $first_name_parts[0] ?? 'Friend';
                                         </span>
                                     </td>
                                     <td><?= date('M d, Y', strtotime($p['created_at'])) ?></td>
+                                    <td>
+                                        <a href="create_post.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
+                                        <a href="blog_builder.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-info">Style</a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
@@ -392,11 +403,15 @@ $first_name = $first_name_parts[0] ?? 'Friend';
                         <?php foreach ($post_items as $p): ?>
                             <div class="mobile-request-card">
                                 <strong class="d-block mb-1"><?= htmlspecialchars($p['title']) ?></strong>
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="badge bg-<?= $p['status'] === 'published' ? 'success' : 'secondary' ?>">
                                         <?= ucfirst($p['status']) ?>
                                     </span>
                                     <small class="text-muted"><?= date('M d, Y', strtotime($p['created_at'])) ?></small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="create_post.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary flex-grow-1">Edit</a>
+                                    <a href="blog_builder.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-info flex-grow-1">Style</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>

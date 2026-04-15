@@ -31,6 +31,28 @@ $recent_logs = mysqli_query($conn, "
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        .feature-card-link {
+            text-decoration: none;
+        }
+
+        .feature-card-link .card {
+            transition: all 0.3s ease;
+        }
+
+        .feature-card-link:hover .card {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .feature-card-link:hover .card i {
+            transform: scale(1.1);
+        }
+
+        .feature-card-link .card i {
+            transition: transform 0.3s ease;
+        }
+    </style>
 </head>
 <body>
 
@@ -46,6 +68,7 @@ $recent_logs = mysqli_query($conn, "
                 <li class="nav-item"><a class="nav-link active" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="log_activity.php"><i class="bi bi-journal-plus"></i> Log Activity</a></li>
                 <li class="nav-item"><a class="nav-link" href="rescue_report.php"><i class="bi bi-exclamation-triangle"></i> Report Rescue</a></li>
+                <li class="nav-item"><a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> My Posts</a></li>
             </ul>
         </nav>
 
@@ -79,12 +102,14 @@ $recent_logs = mysqli_query($conn, "
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card text-white bg-info shadow">
-                        <div class="card-body">
-                            <h6 class="card-title">Resolved Rescues</h6>
-                            <h2 class="text-white"><?= $resolved ?></h2>
+                    <a href="post_create.php" class="feature-card-link">
+                        <div class="card text-white bg-secondary shadow h-100 d-flex align-items-center justify-content-center" style="min-height: 150px;">
+                            <div class="card-body text-center">
+                                <i class="bi bi-newspaper" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                                <h6 class="card-title m-0">Create Post</h6>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 

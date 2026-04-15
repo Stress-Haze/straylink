@@ -4,20 +4,25 @@ require_once '../../config/db.php';
 require_once '../../includes/functions.php';
 require_once '../../includes/auth.php';
 
-requireRole('admin');
+requireRole('volunteer');
+
+$member_id = $_SESSION['member_id'];
 
 // Handle delete
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    mysqli_query($conn, "DELETE FROM posts WHERE id = $id");
+    $post = mysqli_fetch_assoc(mysqli_query($conn, "SELECT author_id FROM posts WHERE id = $id"));
+    if ($post && $post['author_id'] == $member_id) {
+        mysqli_query($conn, "DELETE FROM posts WHERE id = $id");
+    }
     redirect('posts.php');
 }
 
 // Handle publish/unpublish
 if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
     $id = (int)$_GET['toggle'];
-    $post = mysqli_fetch_assoc(mysqli_query($conn, "SELECT status FROM posts WHERE id = $id"));
-    if ($post) {
+    $post = mysqli_fetch_assoc(mysqli_query($conn, "SELECT status, author_id FROM posts WHERE id = $id"));
+    if ($post && $post['author_id'] == $member_id) {
         $new_status = $post['status'] === 'published' ? 'draft' : 'published';
         $published_at = $new_status === 'published' ? "NOW()" : "NULL";
         mysqli_query($conn, "UPDATE posts SET status = '$new_status', published_at = $published_at WHERE id = $id");
@@ -26,9 +31,9 @@ if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
 }
 
 $posts = mysqli_query($conn, "
-    SELECT p.*, m.full_name
+    SELECT p.*
     FROM posts p
-    JOIN members m ON p.author_id = m.id
+    WHERE p.author_id = $member_id
     ORDER BY p.created_at DESC
 ");
 ?>
@@ -37,53 +42,32 @@ $posts = mysqli_query($conn, "
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog Posts — StrayLink Admin</title>
+    <title>My Posts — StrayLink</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 <body>
 
-<!-- Navbar -->
 <?php
-    $dashboard_title = 'StrayLink Admin';
+    $dashboard_title = 'StrayLink Community';
     include '../../includes/navbar_dashboard.php';
 ?>
 
 <div class="container-fluid">
     <div class="row">
-
-        <!-- Sidebar -->
         <nav class="col-md-2 bg-light sidebar min-vh-100 p-3">
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="members.php"><i class="bi bi-people"></i> Members</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="animals.php"><i class="bi bi-heart"></i> Animals</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="posts.php"><i class="bi bi-newspaper"></i> Blog Posts</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="log_activity.php"><i class="bi bi-journal-plus"></i> Log Activity</a></li>
+                <li class="nav-item"><a class="nav-link" href="rescue_report.php"><i class="bi bi-exclamation-triangle"></i> Report Rescue</a></li>
+                <li class="nav-item"><a class="nav-link active" href="posts.php"><i class="bi bi-newspaper"></i> My Posts</a></li>
             </ul>
         </nav>
 
-        <!-- Main Content -->
         <main class="col-md-10 p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0">Blog Posts</h4>
+                <h4 class="mb-0">My Posts</h4>
                 <a href="post_create.php" class="btn btn-success">
                     <i class="bi bi-plus"></i> New Post
                 </a>
@@ -97,7 +81,6 @@ $posts = mysqli_query($conn, "
                                 <th>#</th>
                                 <th>Cover</th>
                                 <th>Title</th>
-                                <th>Author</th>
                                 <th>Status</th>
                                 <th>Published</th>
                                 <th>Actions</th>
@@ -120,7 +103,6 @@ $posts = mysqli_query($conn, "
                                     <strong><?= htmlspecialchars($p['title']) ?></strong><br>
                                     <small class="text-muted">/<?= htmlspecialchars($p['slug']) ?></small>
                                 </td>
-                                <td><?= htmlspecialchars($p['full_name']) ?></td>
                                 <td>
                                     <span class="badge bg-<?= $p['status'] === 'published' ? 'success' : 'secondary' ?>">
                                         <?= ucfirst($p['status']) ?>
@@ -131,9 +113,6 @@ $posts = mysqli_query($conn, "
                                 </td>
                                 <td class="d-flex gap-1">
                                     <a href="post_create.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
-                                    <a href="../../pages/blog_builder.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-info">
-                                        <i class="bi bi-palette"></i> Style
-                                    </a>
                                     <a href="?toggle=<?= $p['id'] ?>" class="btn btn-sm btn-<?= $p['status'] === 'published' ? 'warning' : 'success' ?>">
                                         <?= $p['status'] === 'published' ? 'Unpublish' : 'Publish' ?>
                                     </a>
@@ -142,7 +121,7 @@ $posts = mysqli_query($conn, "
                             </tr>
                         <?php endwhile; ?>
                         <?php if (mysqli_num_rows($posts) === 0): ?>
-                            <tr><td colspan="7" class="text-center text-muted py-3">No blog posts yet</td></tr>
+                            <tr><td colspan="6" class="text-center text-muted py-3">No posts yet. <a href="post_create.php">Create your first post</a></td></tr>
                         <?php endif; ?>
                         </tbody>
                     </table>

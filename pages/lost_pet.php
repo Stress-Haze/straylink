@@ -225,6 +225,55 @@ $status_class = $post['status'] === 'active'
             background: #f7f1eb;
         }
 
+        .diary-post-wrapper {
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(58, 39, 20, 0.08);
+        }
+
+        .diary-post-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0.08;
+            pointer-events: none;
+        }
+
+        .diary-post-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .diary-side-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .diary-side-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .diary-side-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pattern-hearts::before { content: '❤️ ❤️ ❤️ ❤️ ❤️ '; }
+        .pattern-stars::before { content: '⭐ ⭐ ⭐ ⭐ ⭐ '; }
+        .pattern-dots::before { content: '• • • • • • • • • • • • • • • • • • • • '; }
+        .pattern-paws::before { content: '🐾 🐾 🐾 🐾 🐾 '; }
+        .pattern-flowers::before { content: '🌸 🌸 🌸 🌸 🌸 '; }
+
         .poster-detail-card .card-header,
         .poster-description-card .card-header {
             background: #fff8f1;
@@ -269,6 +318,10 @@ $status_class = $post['status'] === 'active'
             .poster-detail-grid {
                 grid-template-columns: 1fr;
             }
+
+            .diary-side-images {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
@@ -300,8 +353,52 @@ $status_class = $post['status'] === 'active'
                 <?php endif; ?>
             </div>
 
-            <div class="card poster-photo-card mb-4">
-                <img src="../public/uploads/<?= htmlspecialchars($post['poster_image']) ?>" class="img-fluid animal-main-photo" alt="Poster for <?= htmlspecialchars($post['pet_name']) ?>">
+            <!-- Diary-style wrapper with customization -->
+            <?php 
+            $bg_color = !empty($post['bg_color']) ? $post['bg_color'] : '#faf7f2';
+            $bg_pattern = !empty($post['bg_pattern']) ? $post['bg_pattern'] : 'none';
+            $side_images = !empty($post['side_images']) ? json_decode($post['side_images'], true) : [];
+            if (!is_array($side_images)) {
+                $side_images = [];
+            }
+            ?>
+            <div class="diary-post-wrapper" style="background-color: <?= htmlspecialchars($bg_color) ?>; <?= $bg_pattern !== 'none' ? 'background-image: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,.03) 35px, rgba(0,0,0,.03) 70px);' : '' ?>">
+                <div class="diary-post-content">
+                    <!-- Left side images (1-3) -->
+                    <?php if (!empty(array_filter(array_slice($side_images, 1, 3, true)))): ?>
+                        <div class="diary-side-images">
+                            <?php for ($i = 1; $i <= 3; $i++): ?>
+                                <div class="diary-side-image">
+                                    <?php if (!empty($side_images[$i])): ?>
+                                        <img src="../public/uploads/<?= htmlspecialchars($side_images[$i]) ?>" alt="Side image <?= $i ?>">
+                                    <?php else: ?>
+                                        <div style="background: rgba(0,0,0,0.05); width: 100%; height: 100%;"></div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Main poster image -->
+                    <div class="card poster-photo-card mb-4">
+                        <img src="../public/uploads/<?= htmlspecialchars($post['poster_image']) ?>" class="img-fluid animal-main-photo" alt="Poster for <?= htmlspecialchars($post['pet_name']) ?>">
+                    </div>
+
+                    <!-- Right side images (4-6) -->
+                    <?php if (!empty(array_filter(array_slice($side_images, 4, 3, true)))): ?>
+                        <div class="diary-side-images">
+                            <?php for ($i = 4; $i <= 6; $i++): ?>
+                                <div class="diary-side-image">
+                                    <?php if (!empty($side_images[$i])): ?>
+                                        <img src="../public/uploads/<?= htmlspecialchars($side_images[$i]) ?>" alt="Side image <?= $i ?>">
+                                    <?php else: ?>
+                                        <div style="background: rgba(0,0,0,0.05); width: 100%; height: 100%;"></div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endfor; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <div class="card poster-detail-card mb-4">

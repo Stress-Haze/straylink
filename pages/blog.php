@@ -31,27 +31,14 @@ while ($row = mysqli_fetch_assoc($posts)) {
 }
 
 $render_blog_body = static function ($post) {
-    $chunks = preg_split('/(\[image[1-6]\])/', (string)$post['body'], -1, PREG_SPLIT_DELIM_CAPTURE);
+    $body = preg_replace('/\[image[1-6]\]/', '', (string)$post['body']);
+    $paragraphs = preg_split("/\r\n\r\n|\n\n/", trim($body));
     $tones = ['blog-tone-1', 'blog-tone-2', 'blog-tone-3'];
-    $tone_index = 0;
     $output = '';
+    $tone_index = 0;
 
-    foreach ($chunks as $chunk) {
-        if (preg_match('/^\[image([1-6])\]$/', $chunk, $matches)) {
-            $image_key = 'inline_image_' . $matches[1];
-            $image_file = $post[$image_key] ?? null;
-
-            if ($image_file) {
-                $tone = $tones[$tone_index % count($tones)];
-                $output .= '<figure class="blog-inline-figure ' . $tone . '">';
-                $output .= '<img src="../public/uploads/' . htmlspecialchars($image_file) . '" alt="Inline image for ' . htmlspecialchars($post['title']) . '">';
-                $output .= '</figure>';
-                $tone_index++;
-            }
-            continue;
-        }
-
-        $trimmed = trim($chunk);
+    foreach ($paragraphs as $paragraph) {
+        $trimmed = trim($paragraph);
         if ($trimmed === '') {
             continue;
         }
@@ -65,6 +52,12 @@ $render_blog_body = static function ($post) {
 
     return $output;
 };
+
+$theme_map = [
+    'tone-1' => 'blog-tone-1',
+    'tone-2' => 'blog-tone-2',
+    'tone-3' => 'blog-tone-3',
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -77,15 +70,15 @@ $render_blog_body = static function ($post) {
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         .blog-tone-1 {
-            background: linear-gradient(180deg, #fff9ef 0%, #f8f0e1 100%);
+            background: transparent;
         }
 
         .blog-tone-2 {
-            background: linear-gradient(180deg, #f3fbf6 0%, #e5f3ea 100%);
+            background: transparent;
         }
 
         .blog-tone-3 {
-            background: linear-gradient(180deg, #f5f7ff 0%, #e8edfb 100%);
+            background: transparent;
         }
 
         .blog-inline-figure {
@@ -104,22 +97,29 @@ $render_blog_body = static function ($post) {
         }
 
         .blog-body-panel {
-            border-radius: 22px;
-            padding: 1.15rem 1.25rem;
-            margin: 1rem 0;
-            border: 1px solid rgba(60, 81, 68, 0.08);
+            border-radius: 0;
         }
 
-        .blog-card-accent-1 .card-body {
-            background: linear-gradient(180deg, #fffdf8 0%, #f7f0e7 100%);
+        .blog-post-shell {
+            background-repeat: repeat;
+            background-position: center;
+            position: relative;
         }
 
-        .blog-card-accent-2 .card-body {
-            background: linear-gradient(180deg, #f4fbf6 0%, #e9f4ec 100%);
+        .blog-post-shell::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .blog-card-accent-3 .card-body {
-            background: linear-gradient(180deg, #f7f8ff 0%, #edf0fb 100%);
+        .blog-reader-layout {
+            position: relative;
+            z-index: 1;
         }
     </style>
 </head>
@@ -131,23 +131,60 @@ $render_blog_body = static function ($post) {
     include '../includes/navbar.php';
 ?>
 
+<!-- Full Page Pattern Background -->
+<?php if (isset($post) && !empty($post) && !empty($post['bg_pattern']) && $post['bg_pattern'] !== 'none'): ?>
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; opacity: 0.3; font-size: 3.5rem; line-height: 1.3; overflow: hidden; z-index: -1; color: rgba(60, 81, 68, 0.6); padding: 2rem; white-space: pre-wrap; word-wrap: break-word;">
+        <?php
+            $pattern_text = '';
+            if ($post['bg_pattern'] === 'hearts') $pattern_text = str_repeat('❤️ ', 500);
+            elseif ($post['bg_pattern'] === 'stars') $pattern_text = str_repeat('⭐ ', 500);
+            elseif ($post['bg_pattern'] === 'dots') $pattern_text = str_repeat('• ', 800);
+            elseif ($post['bg_pattern'] === 'paws') $pattern_text = str_repeat('🐾 ', 500);
+            elseif ($post['bg_pattern'] === 'flowers') $pattern_text = str_repeat('🌸 ', 500);
+            elseif ($post['bg_pattern'] === 'bones') $pattern_text = str_repeat('🦴 ', 500);
+            elseif ($post['bg_pattern'] === 'sparkles') $pattern_text = str_repeat('✨ ', 500);
+            elseif ($post['bg_pattern'] === 'waves') $pattern_text = str_repeat('〰️ ', 500);
+            elseif ($post['bg_pattern'] === 'checkerboard') $pattern_text = str_repeat('▦ ', 500);
+            echo $pattern_text;
+        ?>
+    </div>
+<?php endif; ?>
+
 <div class="container py-5">
 <?php if ($post): ?>
+    <?php
+        $theme_class = $theme_map[$post['theme_tone'] ?? 'tone-1'] ?? 'blog-tone-1';
+        $pattern_style = '';
+        $bg_color = !empty($post['bg_color']) ? htmlspecialchars($post['bg_color']) : 'transparent';
+        $bg_pattern = !empty($post['bg_pattern']) ? htmlspecialchars($post['bg_pattern']) : 'none';
+        
+        $pattern_style = "background-color: $bg_color;";
+        
+        // Parse side images from JSON
+        $side_images = !empty($post['side_images']) ? json_decode($post['side_images'], true) : [];
+        if (!is_array($side_images)) {
+            $side_images = [];
+        }
+    ?>
     <a href="blog.php" class="btn btn-outline-secondary btn-sm mb-4">Back to Blog</a>
-    <section class="blog-post-shell mx-auto">
-        <?php if ($post['cover_image']): ?>
-            <img src="../public/uploads/<?= htmlspecialchars($post['cover_image']) ?>" class="img-fluid blog-post-cover mb-4" alt="Cover image for <?= htmlspecialchars($post['title']) ?>">
-        <?php endif; ?>
-        <div class="blog-post-meta mb-3">
-            <span class="active-filter-pill">Community story</span>
-            <span class="text-muted">By <?= htmlspecialchars($post['author_name']) ?></span>
-            <span class="text-muted"><?= date('M d, Y', strtotime($post['published_at'])) ?></span>
-        </div>
-        <h1 class="fw-bold mb-3"><?= htmlspecialchars($post['title']) ?></h1>
-        <div class="post-body rich-post-body">
-            <?= $render_blog_body($post) ?>
-        </div>
-    </section>
+    
+    <div style="margin: 0 auto; max-width: 960px;">
+        <!-- Blog Post with Color Background -->
+        <section class="blog-post-shell mx-auto <?= $theme_class ?>" style="<?= $pattern_style ?>">
+                    <?php if ($post['cover_image']): ?>
+                        <img src="../public/uploads/<?= htmlspecialchars($post['cover_image']) ?>" class="img-fluid blog-post-cover mb-4" alt="Cover image for <?= htmlspecialchars($post['title']) ?>">
+                    <?php endif; ?>
+                    <div class="blog-post-meta mb-3">
+                        <span class="active-filter-pill">Community story</span>
+                        <span class="text-muted">By <?= htmlspecialchars($post['author_name']) ?></span>
+                        <span class="text-muted"><?= date('M d, Y', strtotime($post['published_at'])) ?></span>
+                    </div>
+                    <h1 class="fw-bold mb-3"><?= htmlspecialchars($post['title']) ?></h1>
+                    <div class="post-body rich-post-body">
+                        <?= $render_blog_body($post) ?>
+                    </div>
+        </section>
+    </div>
 <?php else: ?>
     <section class="blog-hero mb-4">
         <div class="row g-4 align-items-center">

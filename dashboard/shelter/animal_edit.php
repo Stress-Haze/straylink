@@ -83,6 +83,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Auto-set newest photo as primary if no primary exists
+        $primary_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM animal_photos WHERE animal_id = $animal_id AND is_primary = 1"))['c'];
+        if ($primary_count == 0 && mysqli_num_rows($photos) > 0) {
+            $latest_photo = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM animal_photos WHERE animal_id = $animal_id ORDER BY id DESC LIMIT 1"));
+            if ($latest_photo) {
+                mysqli_query($conn, "UPDATE animal_photos SET is_primary = 1 WHERE id = " . (int)$latest_photo['id']);
+            }
+        }
+
         $success = "Animal updated successfully!";
     }
 
@@ -90,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $animal  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM animals WHERE id = $animal_id"));
     }
 }
+
 
 $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $animal_id");
 ?>
@@ -154,11 +164,13 @@ $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $an
             <!-- Existing Photos -->
             <?php if (mysqli_num_rows($photos) > 0): ?>
             <div class="card shadow mb-4">
-                <div class="card-header bg-white fw-bold">Current Photos</div>
+<div class="card-header bg-white fw-bold">Current Photos</div>
+
                 <div class="card-body d-flex gap-2 flex-wrap">
                     <?php while ($p = mysqli_fetch_assoc($photos)): ?>
                         <div class="position-relative">
                             <img src="../../public/uploads/<?= $p['photo_path'] ?>" width="100" height="100" style="object-fit:cover;border-radius:6px;">
+
                             <?php if ($p['is_primary']): ?>
                                 <span class="badge bg-success position-absolute top-0 start-0">Main</span>
                             <?php endif; ?>
@@ -170,6 +182,7 @@ $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $an
                 </div>
             </div>
             <?php endif; ?>
+
 
             <div class="card shadow">
                 <div class="card-body">

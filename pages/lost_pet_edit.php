@@ -55,6 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $last_seen_at = sanitize($_POST['last_seen_at']);
     $reward_amount = $_POST['reward_amount'] !== '' ? (float)$_POST['reward_amount'] : null;
     $reward_note = sanitize($_POST['reward_note']);
+    $bg_color = sanitize($_POST['bg_color'] ?? $post['bg_color'] ?? '#faf7f2');
+    $bg_pattern = sanitize($_POST['bg_pattern'] ?? $post['bg_pattern'] ?? 'none');
 
     if ($pet_name === '' || $contact_name === '' || $contact_number === '' || $city === '' || $last_seen_label === '' || $last_seen_at === '') {
         $error = "Please fill in all required fields.";
@@ -83,6 +85,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Handle side images
+        $side_images = $post['side_images'] ? json_decode($post['side_images'], true) : [];
+        for ($i = 1; $i <= 6; $i++) {
+            if (!empty($_FILES["side_image_$i"]['name'])) {
+                $ext = pathinfo($_FILES["side_image_$i"]['name'], PATHINFO_EXTENSION);
+                $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+                if (in_array(strtolower($ext), $allowed, true)) {
+                    $img_name = 'lost_pet_side_' . $i . '_' . time() . '.' . strtolower($ext);
+                    move_uploaded_file($_FILES["side_image_$i"]['tmp_name'], '../public/uploads/' . $img_name);
+                    $side_images[$i] = $img_name;
+                }
+            }
+        }
+        $side_images_json = json_encode($side_images);
+
         if (!$error) {
             $needs_review = !in_array($post['status'], ['found', 'closed'], true);
             $new_status = $needs_review ? 'pending' : $post['status'];
@@ -94,13 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SET pet_name = ?, species = ?, breed = ?, gender = ?, age_text = ?, color_markings = ?, description = ?,
                     contact_name = ?, contact_number = ?, contact_email = ?, city = ?, last_seen_label = ?, last_seen_latitude = ?,
                     last_seen_longitude = ?, last_seen_at = ?, reward_amount = ?, reward_note = ?, poster_image = ?, status = ?,
-                    visibility = ?, expires_at = ?
+                    visibility = ?, expires_at = ?, bg_color = ?, bg_pattern = ?, side_images = ?
                 WHERE id = ? AND member_id = ?
             ");
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "ssssssssssssddsdsssssii",
+                "ssssssssssssddsdsssssssii",
                 $pet_name,
                 $species,
                 $breed,
@@ -122,6 +139,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new_status,
                 $new_visibility,
                 $expires_at,
+                $bg_color,
+                $bg_pattern,
+                $side_images_json,
                 $post_id,
                 $member_id
             );
@@ -148,6 +168,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .edit-form-card {
+            border: 0;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-section-header {
+            background: white;
+            padding: 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -158,17 +200,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="container py-5">
-    <a href="lost_pet.php?id=<?= $post_id ?>" class="btn btn-outline-secondary btn-sm mb-4">Back to Poster</a>
-
-    <section class="rescue-hero mb-4">
-        <div class="row g-4 align-items-center">
-            <div class="col-lg-7">
-                <p class="section-kicker mb-2">Edit poster</p>
-                <h1 class="fw-bold mb-3">Update the poster details without starting over.</h1>
-                <p class="text-muted mb-0">If you edit an open missing-pet case, it goes back into review before it appears on the public board again.</p>
-            </div>
-        </div>
-    </section>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Edit Lost Pet Poster</h2>
+        <a href="lost_pet.php?id=<?= $post_id ?>" class="btn btn-outline-secondary btn-sm">← Back to Poster</a>
+    </div>
 
     <?php if ($error): ?>
         <div class="alert alert-danger"><?= $error ?></div>
@@ -178,127 +213,169 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="alert alert-success"><?= $success ?></div>
     <?php endif; ?>
 
-    <div class="row g-4 align-items-start">
-        <div class="col-lg-8">
-            <div class="card shadow-sm rescue-form-card">
-                <div class="card-body p-4 p-lg-5">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Pet Name <span class="text-danger">*</span></label>
-                                <input type="text" name="pet_name" class="form-control" required value="<?= htmlspecialchars($post['pet_name']) ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Species <span class="text-danger">*</span></label>
-                                <select name="species" class="form-select" required>
-                                    <option value="dog" <?= $post['species'] === 'dog' ? 'selected' : '' ?>>Dog</option>
-                                    <option value="cat" <?= $post['species'] === 'cat' ? 'selected' : '' ?>>Cat</option>
-                                    <option value="other" <?= $post['species'] === 'other' ? 'selected' : '' ?>>Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Breed</label>
-                                <input type="text" name="breed" class="form-control" value="<?= htmlspecialchars($post['breed']) ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Gender</label>
-                                <select name="gender" class="form-select">
-                                    <option value="unknown" <?= $post['gender'] === 'unknown' ? 'selected' : '' ?>>Unknown</option>
-                                    <option value="male" <?= $post['gender'] === 'male' ? 'selected' : '' ?>>Male</option>
-                                    <option value="female" <?= $post['gender'] === 'female' ? 'selected' : '' ?>>Female</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Age</label>
-                                <input type="text" name="age_text" class="form-control" value="<?= htmlspecialchars($post['age_text']) ?>">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Color / Markings</label>
-                            <input type="text" name="color_markings" class="form-control" value="<?= htmlspecialchars($post['color_markings']) ?>">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Replace Poster Image</label>
-                            <input type="file" name="poster_image" class="form-control" accept="image/*">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">City <span class="text-danger">*</span></label>
-                                <input type="text" name="city" class="form-control" required value="<?= htmlspecialchars($post['city']) ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Last Seen Date & Time <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="last_seen_at" class="form-control" required value="<?= htmlspecialchars($format_input_datetime($post['last_seen_at'])) ?>">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Last Seen Location <span class="text-danger">*</span></label>
-                            <input type="text" name="last_seen_label" class="form-control" required value="<?= htmlspecialchars($post['last_seen_label']) ?>">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Latitude</label>
-                                <input type="text" name="last_seen_latitude" class="form-control" value="<?= htmlspecialchars((string)$post['last_seen_latitude']) ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Longitude</label>
-                                <input type="text" name="last_seen_longitude" class="form-control" value="<?= htmlspecialchars((string)$post['last_seen_longitude']) ?>">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="4"><?= htmlspecialchars($post['description']) ?></textarea>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Contact Name <span class="text-danger">*</span></label>
-                                <input type="text" name="contact_name" class="form-control" required value="<?= htmlspecialchars($post['contact_name']) ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                <input type="text" name="contact_number" class="form-control" required value="<?= htmlspecialchars($post['contact_number']) ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Contact Email</label>
-                                <input type="email" name="contact_email" class="form-control" value="<?= htmlspecialchars($post['contact_email']) ?>">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Reward Amount</label>
-                                <input type="number" step="0.01" min="0" name="reward_amount" class="form-control" value="<?= htmlspecialchars((string)$post['reward_amount']) ?>">
-                            </div>
-                            <div class="col-md-8 mb-3">
-                                <label class="form-label">Reward Note</label>
-                                <input type="text" name="reward_note" class="form-control" value="<?= htmlspecialchars($post['reward_note']) ?>">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 btn-lg">
-                            <i class="bi bi-save"></i> Save Changes
-                        </button>
-                    </form>
+    <div class="card edit-form-card">
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Pet Details -->
+            <div class="form-section-header">Pet Details</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Pet Name <span class="text-danger">*</span></label>
+                        <input type="text" name="pet_name" class="form-control" required value="<?= htmlspecialchars($post['pet_name']) ?>">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Species <span class="text-danger">*</span></label>
+                        <select name="species" class="form-select" required>
+                            <option value="dog" <?= $post['species'] === 'dog' ? 'selected' : '' ?>>Dog</option>
+                            <option value="cat" <?= $post['species'] === 'cat' ? 'selected' : '' ?>>Cat</option>
+                            <option value="other" <?= $post['species'] === 'other' ? 'selected' : '' ?>>Other</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="fw-bold mb-3">What happens after editing</h5>
-                    <div class="gallery-meta-list single-column">
-                        <span><i class="bi bi-shield-check"></i> Open missing-pet posters go back to review.</span>
-                        <span><i class="bi bi-image"></i> You can keep the current poster image or replace it.</span>
-                        <span><i class="bi bi-pencil-square"></i> Updating details is better than creating duplicates.</span>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Breed</label>
+                        <input type="text" name="breed" class="form-control" value="<?= htmlspecialchars($post['breed']) ?>">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Gender</label>
+                        <select name="gender" class="form-select">
+                            <option value="unknown" <?= $post['gender'] === 'unknown' ? 'selected' : '' ?>>Unknown</option>
+                            <option value="male" <?= $post['gender'] === 'male' ? 'selected' : '' ?>>Male</option>
+                            <option value="female" <?= $post['gender'] === 'female' ? 'selected' : '' ?>>Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Age</label>
+                        <input type="text" name="age_text" class="form-control" value="<?= htmlspecialchars($post['age_text']) ?>">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Color / Markings</label>
+                        <input type="text" name="color_markings" class="form-control" value="<?= htmlspecialchars($post['color_markings']) ?>">
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Location & Time -->
+            <div class="form-section-header">Location & Last Seen</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">City <span class="text-danger">*</span></label>
+                        <input type="text" name="city" class="form-control" required value="<?= htmlspecialchars($post['city']) ?>">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Last Seen Date & Time <span class="text-danger">*</span></label>
+                        <input type="datetime-local" name="last_seen_at" class="form-control" required value="<?= htmlspecialchars($format_input_datetime($post['last_seen_at'])) ?>">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Last Seen Location <span class="text-danger">*</span></label>
+                    <input type="text" name="last_seen_label" class="form-control" required value="<?= htmlspecialchars($post['last_seen_label']) ?>">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Latitude</label>
+                        <input type="text" name="last_seen_latitude" class="form-control" value="<?= htmlspecialchars((string)$post['last_seen_latitude']) ?>">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Longitude</label>
+                        <input type="text" name="last_seen_longitude" class="form-control" value="<?= htmlspecialchars((string)$post['last_seen_longitude']) ?>">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-section-header">Description</div>
+            <div class="card-body">
+                <textarea name="description" class="form-control" rows="5" placeholder="Describe your pet, behavior, distinctive features..."><?= htmlspecialchars($post['description']) ?></textarea>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-section-header">Contact Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Contact Name <span class="text-danger">*</span></label>
+                        <input type="text" name="contact_name" class="form-control" required value="<?= htmlspecialchars($post['contact_name']) ?>">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Contact Number <span class="text-danger">*</span></label>
+                        <input type="text" name="contact_number" class="form-control" required value="<?= htmlspecialchars($post['contact_number']) ?>">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Contact Email</label>
+                        <input type="email" name="contact_email" class="form-control" value="<?= htmlspecialchars($post['contact_email']) ?>">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media -->
+            <div class="form-section-header">Poster Image</div>
+            <div class="card-body">
+                <label class="form-label">Main Poster Image</label>
+                <input type="file" name="poster_image" class="form-control" accept="image/*">
+                <small class="text-muted">Leave blank to keep current image</small>
+                <?php if ($post['poster_image']): ?>
+                    <div class="mt-2">
+                        <small class="text-muted">Current image:</small>
+                        <img src="../public/uploads/<?= htmlspecialchars($post['poster_image']) ?>" class="image-preview" alt="Current poster">
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Reward -->
+            <div class="form-section-header">Reward Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Reward Amount</label>
+                        <input type="number" step="0.01" min="0" name="reward_amount" class="form-control" value="<?= htmlspecialchars((string)$post['reward_amount']) ?>">
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label">Reward Note</label>
+                        <input type="text" name="reward_note" class="form-control" value="<?= htmlspecialchars($post['reward_note']) ?>">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="card-body bg-light border-top">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-save me-2"></i> Save Changes
+                </button>
+                <a href="lost_pet.php?id=<?= $post_id ?>" class="btn btn-outline-secondary btn-lg ms-2">Cancel</a>
+            </div>
+        </form>
     </div>
 </div>
 
 <?php include '../includes/footer.php'; ?>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Handle image uploads with preview
+    document.querySelectorAll('.image-upload-box').forEach(box => {
+        const input = box.querySelector('input[type="file"]');
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    let img = box.querySelector('img');
+                    if (!img) {
+                        img = document.createElement('img');
+                        box.appendChild(img);
+                    }
+                    img.src = evt.target.result;
+                    box.querySelector('.image-upload-label').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>
 </body>
 </html>

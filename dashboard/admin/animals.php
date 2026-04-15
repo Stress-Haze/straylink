@@ -6,6 +6,9 @@ require_once '../../includes/auth.php';
 
 requireRole('admin');
 
+// Get shelter filter
+$shelter_filter = isset($_GET['shelter']) ? sanitize($_GET['shelter']) : '';
+
 // Handle delete
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
@@ -20,13 +23,27 @@ if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
     redirect('animals.php');
 }
 
-$animals = mysqli_query($conn, "
+// Build query with shelter filter
+$query = "
     SELECT a.*, m.full_name AS reporter, s.shelter_name
     FROM animals a
     JOIN members m ON a.reported_by = m.id
     LEFT JOIN shelters s ON a.shelter_id = s.id
-    ORDER BY a.created_at DESC
-");
+";
+
+// Apply shelter filter
+if ($shelter_filter === 'outside') {
+    $query .= "WHERE a.shelter_id IS NULL";
+} elseif ($shelter_filter && $shelter_filter !== 'all') {
+    $query .= "WHERE a.shelter_id = " . (int)$shelter_filter;
+}
+
+$query .= " ORDER BY a.created_at DESC";
+
+$animals = mysqli_query($conn, $query);
+
+// Get all shelters for dropdown
+$shelters = mysqli_query($conn, "SELECT id, shelter_name FROM shelters ORDER BY shelter_name ASC");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,6 +96,31 @@ $animals = mysqli_query($conn, "
         <!-- Main Content -->
         <main class="col-md-10 p-4">
             <h4 class="mb-4">Animals</h4>
+
+            <!-- Shelter Filter -->
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-end">
+                        <div class="col-md-6">
+                            <label for="shelterFilter" class="form-label"><strong>Filter by Shelter</strong></label>
+                            <select id="shelterFilter" class="form-select" onchange="filterByShelter(this.value)">
+                                <option value="">All Shelters</option>
+                                <option value="outside" <?= $shelter_filter === 'outside' ? 'selected' : '' ?>>Outside Shelter (No Shelter Assigned)</option>
+                                <?php while ($s = mysqli_fetch_assoc($shelters)): ?>
+                                    <option value="<?= $s['id'] ?>" <?= $shelter_filter === (string)$s['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($s['shelter_name']) ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <?php if ($shelter_filter): ?>
+                            <div class="col-md-6">
+                                <a href="animals.php" class="btn btn-outline-secondary">Clear Filter</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
 
             <div class="card shadow">
                 <div class="card-body p-0">
@@ -142,5 +184,14 @@ $animals = mysqli_query($conn, "
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function filterByShelter(shelterValue) {
+        if (shelterValue === '') {
+            window.location.href = 'animals.php';
+        } else {
+            window.location.href = 'animals.php?shelter=' + encodeURIComponent(shelterValue);
+        }
+    }
+</script>
 </body>
 </html>
