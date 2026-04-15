@@ -69,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
 
         // Handle new photo uploads
+        $uploaded_photo_ids = [];
         if (!empty($_FILES['photos']['name'][0])) {
             $allowed = ['jpg','jpeg','png','webp'];
             foreach ($_FILES['photos']['tmp_name'] as $key => $tmp) {
@@ -78,17 +79,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $filename = 'animal_' . $animal_id . '_' . time() . '_' . $key . '.' . $ext;
                         move_uploaded_file($tmp, '../../public/uploads/' . $filename);
                         mysqli_query($conn, "INSERT INTO animal_photos (animal_id, photo_path, is_primary) VALUES ($animal_id, '$filename', 0)");
+                        $uploaded_photo_ids[] = mysqli_insert_id($conn);
                     }
                 }
             }
         }
 
-        // Auto-set newest photo as primary if no primary exists
-        $primary_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM animal_photos WHERE animal_id = $animal_id AND is_primary = 1"))['c'];
-        if ($primary_count == 0 && mysqli_num_rows($photos) > 0) {
-            $latest_photo = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM animal_photos WHERE animal_id = $animal_id ORDER BY id DESC LIMIT 1"));
-            if ($latest_photo) {
-                mysqli_query($conn, "UPDATE animal_photos SET is_primary = 1 WHERE id = " . (int)$latest_photo['id']);
+        // Set the first uploaded photo as primary ONLY if there's no existing primary
+        if (!empty($uploaded_photo_ids)) {
+            // Check if there's already a primary photo
+            $primary_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM animal_photos WHERE animal_id = $animal_id AND is_primary = 1"))['c'];
+            if ($primary_count == 0) {
+                // No primary exists, set the first uploaded photo as primary
+                mysqli_query($conn, "UPDATE animal_photos SET is_primary = 1 WHERE id = " . (int)$uploaded_photo_ids[0]);
+            }
+        } else {
+            // No new photos uploaded - ensure there's at least one primary if photos exist
+            $primary_count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM animal_photos WHERE animal_id = $animal_id AND is_primary = 1"))['c'];
+            if ($primary_count == 0) {
+                $latest_photo = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id FROM animal_photos WHERE animal_id = $animal_id ORDER BY id ASC LIMIT 1"));
+                if ($latest_photo) {
+                    mysqli_query($conn, "UPDATE animal_photos SET is_primary = 1 WHERE id = " . (int)$latest_photo['id']);
+                }
             }
         }
 
@@ -96,12 +108,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$error) {
+        // Reload animal and photos data after update
         $animal  = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM animals WHERE id = $animal_id"));
+        $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $animal_id ORDER BY is_primary DESC, id ASC");
     }
 }
 
 
-$photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $animal_id");
+$photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $animal_id ORDER BY is_primary DESC, id ASC");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -162,7 +176,9 @@ $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $an
             <?php endif; ?>
 
             <!-- Existing Photos -->
-            <?php if (mysqli_num_rows($photos) > 0): ?>
+            <?php 
+            if (mysqli_num_rows($photos) > 0): 
+            ?>
             <div class="card shadow mb-4">
 <div class="card-header bg-white fw-bold">Current Photos</div>
 
