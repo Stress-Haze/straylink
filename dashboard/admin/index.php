@@ -18,6 +18,7 @@ $pending_rescues = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as co
 $pending_adoptions = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM adoption_requests WHERE status = 'pending'"))['count'];
 $pending_donations = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM donations WHERE status = 'pending'"))['count'];
 $pending_lost_pets = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM lost_pet_posts WHERE status = 'pending' OR status = '' OR (visibility = 'hidden' AND status = 'active')"))['count'];
+$pending_blog_posts = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM posts WHERE status = 'pending'"))['count'];
 $published_posts = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as count FROM posts WHERE status = 'published'"))['count'];
 
 $recent_reports = mysqli_query($conn, "

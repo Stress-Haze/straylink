@@ -32,7 +32,7 @@ $status_value = $post['status'] ?? 'draft';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = sanitize($_POST['title']);
-    $body = $_POST['body'];
+    $body = sanitize($_POST['body']);
     $status = sanitize($_POST['status']);
     $slug = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $title), '-'));
 
@@ -55,13 +55,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $published_at = $status === 'published' ? date('Y-m-d H:i:s') : null;
-        $published_at_sql = $published_at ? "'" . mysqli_real_escape_string($conn, $published_at) . "'" : 'NULL';
+        // All user posts go to pending for admin review
+        $final_status = 'pending';
+        $published_at_sql = 'NULL';
 
         if ($edit_id) {
-            // If editing and new cover image was added, set status to pending for review
+            // If editing existing post
             if ($has_new_cover) {
-                $status = 'pending';
+                $final_status = 'pending';
+            } else {
+                // Keep existing status unless title/body changed (then require review)
+                $existing_post = mysqli_fetch_assoc(mysqli_query($conn, "SELECT status FROM posts WHERE id = $edit_id"));
+                if ($existing_post['status'] === 'published' && ($title !== $post['title'] || $body !== $post['body'])) {
+                    $final_status = 'pending';
+                } else {
+                    $final_status = $existing_post['status'];
+                    if ($final_status === 'published') {
+                        $published_at_sql = "'" . mysqli_real_escape_string($conn, date('Y-m-d H:i:s')) . "'";
+                    }
+                }
             }
             $slug = $slug . '-' . $edit_id;
             $update_cover = $cover_image ? "'" . mysqli_real_escape_string($conn, $cover_image) . "'" : 'cover_image';
@@ -71,13 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     slug = '" . mysqli_real_escape_string($conn, $slug) . "',
                     body = '" . mysqli_real_escape_string($conn, $body) . "',
                     cover_image = $update_cover,
-                    status = '" . mysqli_real_escape_string($conn, $status) . "',
+                    status = '" . mysqli_real_escape_string($conn, $final_status) . "',
                     published_at = $published_at_sql
                 WHERE id = $edit_id
             ");
-            $success = 'Post updated successfully.' . ($has_new_cover ? ' Changes sent for admin review.' : '');
+            $success = $final_status === 'pending' ? 'Post updated and sent for admin review.' : 'Post updated successfully.';
             $post = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM posts WHERE id = $edit_id"));
         } else {
+            // New post - always pending
             $slug = $slug . '-' . time();
             mysqli_query($conn, "
                 INSERT INTO posts (
@@ -88,11 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     '" . mysqli_real_escape_string($conn, $slug) . "',
                     '" . mysqli_real_escape_string($conn, $body) . "',
                     " . ($cover_image ? "'" . mysqli_real_escape_string($conn, $cover_image) . "'" : 'NULL') . ",
-                    '" . mysqli_real_escape_string($conn, $status) . "',
-                    $published_at_sql
+                    'pending',
+                    NULL
                 )
             ");
-            $success = 'Post created successfully.';
+            $success = 'Post created and sent for admin review. It will appear once approved.';
         }
     }
 }
@@ -159,9 +172,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-label fw-bold">Publish Status</label>
                             <select name="status" class="form-select">
                                 <option value="draft" <?= $status_value === 'draft' ? 'selected' : '' ?>>Save as Draft</option>
-                                <option value="published" <?= $status_value === 'published' ? 'selected' : '' ?>>Publish Now</option>
+                                <option value="published" disabled>Submit for Review (Admin approval required)</option>
                             </select>
-                            <small class="text-muted">Drafts are private. Published posts appear on the blog.</small>
+                            <small class="text-muted">All posts require admin review before publishing. Drafts are private.</small>
                         </div>
 
                         <div class="d-flex gap-2">
