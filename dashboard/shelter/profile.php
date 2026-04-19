@@ -170,17 +170,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="number" name="capacity" class="form-control" min="0"
                                 value="<?= $shelter['capacity'] ?? 0 ?>">
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Latitude</label>
-                                <input type="text" name="latitude" class="form-control"
-                                    value="<?= $shelter['latitude'] ?? '' ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Longitude</label>
-                                <input type="text" name="longitude" class="form-control"
-                                    value="<?= $shelter['longitude'] ?? '' ?>">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pin Location</label>
+                            <?php require_once '../../includes/map_picker.php'; renderMapPicker('latitude', 'longitude', $shelter['latitude'] ?? null, $shelter['longitude'] ?? null); ?>
                         </div>
                         <div class="mb-4">
                             <label class="form-label">Update Logo</label>

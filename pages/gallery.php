@@ -28,7 +28,7 @@ if ($type === 'outside') {
     $where .= " AND a.is_in_shelter = 0";
 }
 if ($search) {
-    $where .= " AND (a.name LIKE '%$search%' OR a.breed LIKE '%$search%' OR a.location_label LIKE '%$search%')";
+    $where .= " AND (a.name LIKE '%$search%' OR a.breed LIKE '%$search%' OR a.location_label LIKE '%$search%' OR s.city LIKE '%$search%' OR s.address LIKE '%$search%' OR s.shelter_name LIKE '%$search%')";
 }
 
 $animals = mysqli_query($conn, "
@@ -128,7 +128,7 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
 
     <form method="GET" class="card shadow p-4 mb-5 filter-surface" style="border: 2px solid var(--green-light); background: linear-gradient(135deg, #ffffff 0%, #f8faf6 100%);">
         <div class="row g-3 align-items-end">
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-2 col-md-6">
                 <label class="form-label small fw-bold text-success"><i class="bi bi-search me-1"></i>Search</label>
                 <input type="text" name="search" class="form-control" placeholder="Name, breed, or location" value="<?= htmlspecialchars($search) ?>">
             </div>
@@ -168,7 +168,7 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
                     <option value="outside" <?= $type === 'outside' ? 'selected' : '' ?>>Outside Monitored</option>
                 </select>
             </div>
-            <div class="col-lg-1 col-md-4 d-grid">
+            <div class="col-lg-2 col-md-4 d-grid">
                 <button type="submit" class="btn btn-success"><i class="bi bi-funnel me-1"></i>Filter</button>
             </div>
         </div>
@@ -199,9 +199,15 @@ if ($type) $active_filters[] = $type === 'shelter' ? 'In shelter' : 'Outside mon
             <h2 class="fw-bold mb-1 text-success"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Browse Results</h2>
             <p class="text-muted mb-0"><?= $total_results ?> animals currently match your filters</p>
         </div>
-        <?php if (isLoggedIn() && hasRole('user')): ?>
-            <a href="account.php" class="btn btn-outline-success">
-                <i class="bi bi-house-heart me-1"></i>Go to My App
+        <?php if (isLoggedIn()): ?>
+            <?php
+                if (isAdmin())         { $dash_href = '../dashboard/admin/index.php';     $dash_label = 'Admin Dashboard'; }
+                elseif (isShelter())   { $dash_href = '../dashboard/shelter/index.php';   $dash_label = 'Shelter Dashboard'; }
+                elseif (isVolunteer()) { $dash_href = '../dashboard/volunteer/index.php'; $dash_label = 'My Dashboard'; }
+                else                   { $dash_href = 'account.php';                      $dash_label = 'My App'; }
+            ?>
+            <a href="<?= $dash_href ?>" class="btn btn-outline-success">
+                <i class="bi bi-house-heart me-1"></i><?= $dash_label ?>
             </a>
         <?php endif; ?>
     </div>

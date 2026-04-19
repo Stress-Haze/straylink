@@ -18,7 +18,15 @@ $title = $dashboard_title ?? 'StrayLink';
             <span><?= htmlspecialchars($title) ?></span>
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
-            <span class="text-white small">Welcome, <?= htmlspecialchars($_SESSION['full_name'] ?? '') ?></span>
+            <a href="../../pages/home.php" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-house me-1"></i>Home
+            </a>
+            <?php if (!isAdmin() && !isShelter()): ?>
+            <a href="../../pages/account.php" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-person me-1"></i>My Profile
+            </a>
+            <?php endif; ?>
+            <span class="text-white small d-none d-md-inline">Welcome, <?= htmlspecialchars($_SESSION['full_name'] ?? '') ?></span>
             <a href="../../auth/logout.php" class="btn btn-outline-light btn-sm">Logout</a>
         </div>
     </div>

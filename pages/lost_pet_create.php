@@ -27,8 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $last_seen_at = sanitize($_POST['last_seen_at']);
     $reward_amount = $_POST['reward_amount'] !== '' ? (float)$_POST['reward_amount'] : null;
     $reward_note = sanitize($_POST['reward_note']);
-    $bg_color = sanitize($_POST['bg_color'] ?? '#faf7f2');
-    $bg_pattern = sanitize($_POST['bg_pattern'] ?? 'none');
 
     if ($pet_name === '' || $contact_name === '' || $contact_number === '' || $city === '' || $last_seen_label === '' || $last_seen_at === '' || empty($_FILES['poster_image']['name'])) {
         $error = "Please fill in all required fields and add a poster image.";
@@ -48,33 +46,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Poster image must be JPG, PNG, or WEBP.";
         }
 
-        // Handle side images
-        $side_images = [];
-        for ($i = 1; $i <= 6; $i++) {
-            if (!empty($_FILES["side_image_$i"]['name'])) {
-                $ext = pathinfo($_FILES["side_image_$i"]['name'], PATHINFO_EXTENSION);
-                if (in_array(strtolower($ext), $allowed, true)) {
-                    $img_name = 'lost_pet_side_' . $i . '_' . time() . '.' . strtolower($ext);
-                    move_uploaded_file($_FILES["side_image_$i"]['tmp_name'], '../public/uploads/' . $img_name);
-                    $side_images[$i] = $img_name;
-                }
-            }
-        }
-        $side_images_json = json_encode($side_images);
-
         if (!$error) {
             $expires_at = date('Y-m-d H:i:s', strtotime($last_seen_at . ' +30 days'));
             $stmt = mysqli_prepare($conn, "
                 INSERT INTO lost_pet_posts
                 (member_id, pet_name, species, breed, gender, age_text, color_markings, description,
                  contact_name, contact_number, contact_email, city, last_seen_label, last_seen_latitude,
-                 last_seen_longitude, last_seen_at, reward_amount, reward_note, poster_image, bg_color, bg_pattern, side_images, status, visibility, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'hidden', ?)
+                 last_seen_longitude, last_seen_at, reward_amount, reward_note, poster_image, status, visibility, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'hidden', ?)
             ");
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "issssssssssssddsdsssss",
+                "issssssssssssddsdsss",
                 $member_id,
                 $pet_name,
                 $species,
@@ -94,9 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $reward_amount,
                 $reward_note,
                 $poster_image,
-                $bg_color,
-                $bg_pattern,
-                $side_images_json,
                 $expires_at
             );
 
@@ -224,15 +205,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="form-label">Last Seen Location <span class="text-danger">*</span></label>
                     <input type="text" name="last_seen_label" class="form-control" required placeholder="e.g. Near Lakeside Gate 3, Pokhara">
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Latitude</label>
-                        <input type="text" name="last_seen_latitude" class="form-control" placeholder="Optional">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Longitude</label>
-                        <input type="text" name="last_seen_longitude" class="form-control" placeholder="Optional">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Pin Last Seen Location <small class="text-muted">(optional)</small></label>
+                    <?php require_once '../includes/map_picker.php'; renderMapPicker('last_seen_latitude', 'last_seen_longitude'); ?>
                 </div>
             </div>
 

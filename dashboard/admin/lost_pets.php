@@ -83,6 +83,8 @@ $posts = mysqli_query($conn, "
                 <li class="nav-item"><a class="nav-link" href="members.php"><i class="bi bi-people"></i> Members</a></li>
                 <li class="nav-item"><a class="nav-link" href="animals.php"><i class="bi bi-heart"></i> Animals</a></li>
                 <li class="nav-item"><a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a></li>
+                <li class="nav-item"><a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a></li>
+                <li class="nav-item"><a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Strays</a></li>
                 <li class="nav-item"><a class="nav-link active" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a></li>
                 <li class="nav-item"><a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a></li>
                 <li class="nav-item"><a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> Blog Posts</a></li>

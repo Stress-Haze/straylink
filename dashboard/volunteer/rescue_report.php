@@ -86,15 +86,12 @@ $reports = mysqli_query($conn, "
         <!-- Sidebar -->
         <nav class="col-md-2 bg-light sidebar min-vh-100 p-3">
             <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="log_activity.php"><i class="bi bi-journal-plus"></i> Log Activity</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="rescue_report.php"><i class="bi bi-exclamation-triangle"></i> Report Rescue</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="log_activity.php"><i class="bi bi-journal-plus"></i> Log Activity</a></li>
+                <li class="nav-item"><a class="nav-link active" href="rescue_report.php"><i class="bi bi-exclamation-triangle"></i> Report Rescue</a></li>
+                <li class="nav-item"><a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> My Posts</a></li>
+                <li class="nav-item"><a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Stray Updates</a></li>
+                <li class="nav-item"><a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a></li>
             </ul>
         </nav>
 
@@ -138,15 +135,9 @@ $reports = mysqli_query($conn, "
                                     placeholder="e.g. Near Lakeside, Pokhara">
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Latitude <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="latitude" class="form-control" placeholder="e.g. 28.2096">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Longitude <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="longitude" class="form-control" placeholder="e.g. 83.9856">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pin Location <small class="text-muted">(optional)</small></label>
+                            <?php require_once '../../includes/map_picker.php'; renderMapPicker(); ?>
                         </div>
                         <div class="mb-4">
                             <label class="form-label">Photo <small class="text-muted">(optional but helpful)</small></label>

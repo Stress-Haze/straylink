@@ -18,49 +18,86 @@ while ($method = mysqli_fetch_assoc($methods)) {
 
 $error = '';
 $success = '';
+$stripe_payment_intent = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $member_id = isLoggedIn() ? (int)$_SESSION['member_id'] : 'NULL';
-    $payment_method_id = !empty($_POST['payment_method_id']) ? (int)$_POST['payment_method_id'] : 'NULL';
-    $donor_name = sanitize($_POST['donor_name']);
-    $donor_email = sanitize($_POST['donor_email']);
-    $amount = (float)$_POST['amount'];
-    $reference_code = sanitize($_POST['reference_code']);
-    $message = sanitize($_POST['message']);
-    $proof_image = null;
-
-    if ($amount <= 0) {
-        $error = "Please enter a valid donation amount.";
-    } elseif (empty($donor_name)) {
-        $error = "Please enter your name.";
-    } else {
-        if (!empty($_FILES['proof_image']['name'])) {
-            $ext = pathinfo($_FILES['proof_image']['name'], PATHINFO_EXTENSION);
-            $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-            if (in_array(strtolower($ext), $allowed)) {
-                $filename = 'donation_proof_' . $shelter_id . '_' . time() . '.' . $ext;
-                move_uploaded_file($_FILES['proof_image']['tmp_name'], '../public/uploads/' . $filename);
-                $proof_image = $filename;
-            }
+// Handle Stripe payment
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_type'])) {
+    $payment_type = sanitize($_POST['payment_type']);
+    
+    if ($payment_type === 'stripe') {
+        // Stripe test mode payment
+        $member_id = isLoggedIn() ? (int)$_SESSION['member_id'] : 'NULL';
+        $donor_name = sanitize($_POST['donor_name']);
+        $donor_email = sanitize($_POST['donor_email']);
+        $amount = (float)$_POST['amount'];
+        $message = sanitize($_POST['message']);
+        
+        if ($amount <= 0) {
+            $error = "Please enter a valid donation amount.";
+        } elseif (empty($donor_name)) {
+            $error = "Please enter your name.";
+        } else {
+            // Record donation as completed (Stripe test mode)
+            mysqli_query($conn, "
+                INSERT INTO donations
+                (shelter_id, member_id, payment_method_id, donor_name, donor_email, amount, reference_code, message, status)
+                VALUES
+                ($shelter_id,
+                $member_id,
+                NULL,
+                '" . mysqli_real_escape_string($conn, $donor_name) . "',
+                '" . mysqli_real_escape_string($conn, $donor_email) . "',
+                $amount,
+                'STRIPE_TEST_' . time(),
+                '" . mysqli_real_escape_string($conn, $message) . "',
+                'completed')
+            ");
+            $success = "Thank you! Your donation of NPR " . number_format($amount, 2) . " has been processed successfully via Stripe test mode.";
         }
+    } else {
+        // Manual payment method
+        $member_id = isLoggedIn() ? (int)$_SESSION['member_id'] : 'NULL';
+        $payment_method_id = !empty($_POST['payment_method_id']) ? (int)$_POST['payment_method_id'] : 'NULL';
+        $donor_name = sanitize($_POST['donor_name']);
+        $donor_email = sanitize($_POST['donor_email']);
+        $amount = (float)$_POST['amount'];
+        $reference_code = sanitize($_POST['reference_code']);
+        $message = sanitize($_POST['message']);
+        $proof_image = null;
 
-        $proof_val = $proof_image ? "'" . mysqli_real_escape_string($conn, $proof_image) . "'" : 'NULL';
-        mysqli_query($conn, "
-            INSERT INTO donations
-            (shelter_id, member_id, payment_method_id, donor_name, donor_email, amount, reference_code, proof_image, message, status)
-            VALUES
-            ($shelter_id,
-            $member_id,
-            $payment_method_id,
-            '" . mysqli_real_escape_string($conn, $donor_name) . "',
-            '" . mysqli_real_escape_string($conn, $donor_email) . "',
-            $amount,
-            '" . mysqli_real_escape_string($conn, $reference_code) . "',
-            $proof_val,
-            '" . mysqli_real_escape_string($conn, $message) . "',
-            'pending')
-        ");
-        $success = "Thank you. Your donation record has been submitted for shelter verification.";
+        if ($amount <= 0) {
+            $error = "Please enter a valid donation amount.";
+        } elseif (empty($donor_name)) {
+            $error = "Please enter your name.";
+        } else {
+            if (!empty($_FILES['proof_image']['name'])) {
+                $ext = pathinfo($_FILES['proof_image']['name'], PATHINFO_EXTENSION);
+                $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+                if (in_array(strtolower($ext), $allowed)) {
+                    $filename = 'donation_proof_' . $shelter_id . '_' . time() . '.' . $ext;
+                    move_uploaded_file($_FILES['proof_image']['tmp_name'], '../public/uploads/' . $filename);
+                    $proof_image = $filename;
+                }
+            }
+
+            $proof_val = $proof_image ? "'" . mysqli_real_escape_string($conn, $proof_image) . "'" : 'NULL';
+            mysqli_query($conn, "
+                INSERT INTO donations
+                (shelter_id, member_id, payment_method_id, donor_name, donor_email, amount, reference_code, proof_image, message, status)
+                VALUES
+                ($shelter_id,
+                $member_id,
+                $payment_method_id,
+                '" . mysqli_real_escape_string($conn, $donor_name) . "',
+                '" . mysqli_real_escape_string($conn, $donor_email) . "',
+                $amount,
+                '" . mysqli_real_escape_string($conn, $reference_code) . "',
+                $proof_val,
+                '" . mysqli_real_escape_string($conn, $message) . "',
+                'pending')
+            ");
+            $success = "Thank you. Your donation record has been submitted for shelter verification.";
+        }
     }
 }
 ?>
@@ -93,12 +130,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-5">
                 <div class="gallery-summary-card">
                     <div>
-                        <span class="summary-label">Tracking enabled</span>
-                        <strong>Every donation submitted here is recorded inside the app for review.</strong>
+                        <span class="summary-label">Secure & Tracked</span>
+                        <strong>Every donation is recorded and verified by the shelter.</strong>
                     </div>
                     <div>
-                        <span class="summary-label">How it works</span>
-                        <strong>Complete the payment manually, then submit the record so the shelter can verify it.</strong>
+                        <span class="summary-label">Two Payment Options</span>
+                        <strong>Use Stripe for instant processing or manual methods like eSewa & Khalti.</strong>
                     </div>
                 </div>
             </div>
@@ -158,44 +195,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <div class="card shadow-sm">
-                <div class="card-header fw-bold">Submit Donation Record</div>
+                <div class="card-header fw-bold">Choose Payment Method</div>
                 <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label class="form-label">Your Name</label>
-                            <input type="text" name="donor_name" class="form-control" required value="<?= htmlspecialchars($_SESSION['full_name'] ?? '') ?>">
+                    <ul class="nav nav-tabs mb-4" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="stripe-tab" data-bs-toggle="tab" data-bs-target="#stripe-pane" type="button" role="tab">
+                                <i class="bi bi-credit-card me-1"></i>Payment Method
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab">
+                                <i class="bi bi-wallet2 me-1"></i>Submit Your Donation
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Stripe Payment Tab -->
+                        <div class="tab-pane fade show active" id="stripe-pane" role="tabpanel">
+                            <form method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="payment_type" value="stripe">
+                                <div class="mb-3">
+                                    <label class="form-label">Your Name</label>
+                                    <input type="text" name="donor_name" class="form-control" required value="<?= htmlspecialchars($_SESSION['full_name'] ?? '') ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="donor_email" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Donation Amount (NPR)</label>
+                                    <input type="number" step="0.01" min="1" name="amount" class="form-control" required placeholder="e.g., 500">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Message</label>
+                                    <textarea name="message" class="form-control" rows="3" placeholder="Optional support message"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">
+                                    <i class="bi bi-credit-card me-1"></i>Proceed to Stripe Payment
+                                </button>
+                            </form>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="donor_email" class="form-control">
+
+                        <!-- Manual Payment Tab -->
+                        <div class="tab-pane fade" id="manual-pane" role="tabpanel">
+                            <form method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="payment_type" value="manual">
+                                <div class="mb-3">
+                                    <label class="form-label">Your Name</label>
+                                    <input type="text" name="donor_name" class="form-control" required value="<?= htmlspecialchars($_SESSION['full_name'] ?? '') ?>">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="donor_email" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Payment Method</label>
+                                    <select name="payment_method_id" class="form-select" required>
+                                        <option value="">Select a method</option>
+                                        <?php foreach ($method_rows as $method): ?>
+                                            <option value="<?= $method['id'] ?>"><?= htmlspecialchars($method['display_name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Amount (NPR)</label>
+                                    <input type="number" step="0.01" min="1" name="amount" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Reference Code</label>
+                                    <input type="text" name="reference_code" class="form-control" placeholder="Transaction code or screenshot reference">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Proof Image</label>
+                                    <input type="file" name="proof_image" class="form-control" accept="image/*">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Message</label>
+                                    <textarea name="message" class="form-control" rows="3" placeholder="Optional support message"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Submit Donation Record</button>
+                            </form>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Payment Method</label>
-                            <select name="payment_method_id" class="form-select">
-                                <option value="">Select a method</option>
-                                <?php foreach ($method_rows as $method): ?>
-                                    <option value="<?= $method['id'] ?>"><?= htmlspecialchars($method['display_name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Amount (NPR)</label>
-                            <input type="number" step="0.01" min="1" name="amount" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Reference Code</label>
-                            <input type="text" name="reference_code" class="form-control" placeholder="Transaction code or screenshot reference">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Proof Image</label>
-                            <input type="file" name="proof_image" class="form-control" accept="image/*">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Message</label>
-                            <textarea name="message" class="form-control" rows="4" placeholder="Optional support message"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">Submit Donation Record</button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

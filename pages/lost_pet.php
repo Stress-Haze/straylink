@@ -314,6 +314,21 @@ $status_class = $post['status'] === 'active'
             gap: 0.85rem;
         }
 
+        #lost-pet-map {
+            width: 100%;
+            height: 300px;
+            border-radius: 16px;
+            margin-top: 0.5rem;
+        }
+
+        .animal-side-stack .card {
+            border: 2px solid #28a745 !important;
+        }
+
+        .animal-side-stack .card:first-child {
+            border: 2px solid #28a745 !important;
+        }
+
         @media (max-width: 767.98px) {
             .poster-detail-grid {
                 grid-template-columns: 1fr;
@@ -324,6 +339,9 @@ $status_class = $post['status'] === 'active'
             }
         }
     </style>
+    <?php if ($post['last_seen_latitude'] !== null && $post['last_seen_longitude'] !== null): ?>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <?php endif; ?>
 </head>
 <body>
 
@@ -444,6 +462,15 @@ $status_class = $post['status'] === 'active'
                 </div>
             </div>
 
+            <?php if ($post['last_seen_latitude'] !== null && $post['last_seen_longitude'] !== null): ?>
+                <div class="card poster-detail-card mb-4">
+                    <div class="card-header">Location Map</div>
+                    <div class="card-body">
+                        <div id="lost-pet-map"></div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <div class="card poster-description-card mb-4">
                 <div class="card-header">Description</div>
                 <div class="card-body">
@@ -500,9 +527,9 @@ $status_class = $post['status'] === 'active'
                                 <div class="mb-3"><label class="form-label">Your Name</label><input type="text" name="reporter_name" class="form-control" required value="<?= htmlspecialchars($_SESSION['full_name'] ?? '') ?>"></div>
                                 <div class="mb-3"><label class="form-label">Contact Info</label><input type="text" name="reporter_contact" class="form-control" placeholder="Phone or email"></div>
                                 <div class="mb-3"><label class="form-label">Seen Location</label><input type="text" name="location_label" class="form-control" required placeholder="Where did you see the pet?"></div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3"><label class="form-label">Latitude</label><input type="text" name="latitude" class="form-control"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Longitude</label><input type="text" name="longitude" class="form-control"></div>
+                                <div class="mb-3">
+                                    <label class="form-label">Pin Location <small class="text-muted">(optional)</small></label>
+                                    <?php require_once '../includes/map_picker.php'; renderMapPicker(); ?>
                                 </div>
                                 <div class="mb-3"><label class="form-label">Seen Date & Time</label><input type="datetime-local" name="seen_at" class="form-control" required value="<?= date('Y-m-d\TH:i') ?>"></div>
                                 <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="3" placeholder="Behavior, direction, condition, or anything useful..."></textarea></div>
@@ -516,7 +543,7 @@ $status_class = $post['status'] === 'active'
                 </div>
 
                 <?php if ($is_owner): ?>
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm animal-action-card">
                         <div class="card-body">
                             <h5 class="fw-bold mb-3">Owner Actions</h5>
                             <div class="owner-action-grid">
@@ -560,5 +587,18 @@ $status_class = $post['status'] === 'active'
 
 <?php include '../includes/footer.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<?php if ($post['last_seen_latitude'] !== null && $post['last_seen_longitude'] !== null): ?>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    const lostPetMap = L.map('lost-pet-map').setView([<?= (float)$post['last_seen_latitude'] ?>, <?= (float)$post['last_seen_longitude'] ?>], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(lostPetMap);
+    L.marker([<?= (float)$post['last_seen_latitude'] ?>, <?= (float)$post['last_seen_longitude'] ?>])
+        .addTo(lostPetMap)
+        .bindPopup(`<?= htmlspecialchars(addslashes($post['pet_name'])) ?> - Last seen: <?= htmlspecialchars(addslashes($post['last_seen_label'])) ?>`)
+        .openPopup();
+    </script>
+<?php endif; ?>
 </body>
 </html>

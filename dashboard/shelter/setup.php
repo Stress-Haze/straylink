@@ -126,15 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-label">Capacity (number of animals you can house)</label>
                             <input type="number" name="capacity" class="form-control" value="0" min="0">
                         </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Latitude <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="latitude" class="form-control" placeholder="e.g. 28.2096">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Longitude <small class="text-muted">(optional)</small></label>
-                                <input type="text" name="longitude" class="form-control" placeholder="e.g. 83.9856">
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pin Location <small class="text-muted">(optional)</small></label>
+                            <?php require_once '../../includes/map_picker.php'; renderMapPicker(); ?>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Shelter Logo</label>

@@ -8,6 +8,7 @@ requireRole('admin');
 
 // Get shelter filter
 $shelter_filter = isset($_GET['shelter']) ? sanitize($_GET['shelter']) : '';
+$search_name = isset($_GET['search']) ? sanitize($_GET['search']) : '';
 
 // Handle delete
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
@@ -23,19 +24,26 @@ if (isset($_GET['toggle']) && is_numeric($_GET['toggle'])) {
     redirect('animals.php');
 }
 
-// Build query with shelter filter
+// Build query with shelter filter and search
 $query = "
-    SELECT a.*, m.full_name AS reporter, s.shelter_name
+    SELECT a.*, m.full_name AS reporter, s.shelter_name, s.city AS shelter_city
     FROM animals a
     JOIN members m ON a.reported_by = m.id
     LEFT JOIN shelters s ON a.shelter_id = s.id
+WHERE 1=1
 ";
+
+// Apply name search
+if ($search_name !== '') {
+    $search_safe = mysqli_real_escape_string($conn, $search_name);
+    $query .= " AND a.name LIKE '%$search_safe%'";
+}
 
 // Apply shelter filter
 if ($shelter_filter === 'outside') {
-    $query .= "WHERE a.shelter_id IS NULL";
+    $query .= " AND a.shelter_id IS NULL";
 } elseif ($shelter_filter && $shelter_filter !== 'all') {
-    $query .= "WHERE a.shelter_id = " . (int)$shelter_filter;
+    $query .= " AND a.shelter_id = " . (int)$shelter_filter;
 }
 
 $query .= " ORDER BY a.created_at DESC";
@@ -82,6 +90,12 @@ $shelters = mysqli_query($conn, "SELECT id, shelter_name FROM shelters ORDER BY 
                     <a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Strays</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a>
                 </li>
                 <li class="nav-item">
@@ -96,6 +110,28 @@ $shelters = mysqli_query($conn, "SELECT id, shelter_name FROM shelters ORDER BY 
         <!-- Main Content -->
         <main class="col-md-10 p-4">
             <h4 class="mb-4">Animals</h4>
+
+            <!-- Search by Name -->
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <form method="GET" class="row g-2 align-items-end">
+                        <div class="col-12 col-md-8">
+                            <input type="text" name="search" class="form-control" placeholder="Search by animal name..." value="<?= htmlspecialchars($search_name) ?>">
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <button type="submit" class="btn btn-success w-100">Search</button>
+                        </div>
+                        <?php if ($search_name): ?>
+                            <div class="col-6 col-md-2">
+                                <a href="animals.php<?= $shelter_filter ? '?shelter=' . htmlspecialchars($shelter_filter) : '' ?>" class="btn btn-outline-secondary w-100">Clear</a>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($shelter_filter): ?>
+                            <input type="hidden" name="shelter" value="<?= htmlspecialchars($shelter_filter) ?>">
+                        <?php endif; ?>
+                    </form>
+                </div>
+            </div>
 
             <!-- Shelter Filter -->
             <div class="card mb-3 shadow-sm">
@@ -154,9 +190,17 @@ $shelters = mysqli_query($conn, "SELECT id, shelter_name FROM shelters ORDER BY 
                                     <?php endif; ?>
                                 </td>
                                 <td><?= htmlspecialchars($a['name'] ?? '—') ?></td>
-                                <td><?= htmlspecialchars($a['species'] ?? '—') ?></td>
-                                <td><?= htmlspecialchars($a['collar_color'] ?? '—') ?></td>
-                                <td><?= htmlspecialchars($a['location_label'] ?? '—') ?></td>
+                                <td><?= ucfirst($a['species'] ?? '—') ?></td>
+                                <td>
+                                    <?php if ($a['collar_status']): ?>
+                                        <span class="badge" style="background-color:<?= $a['collar_status'] === 'green' ? '#198754' : ($a['collar_status'] === 'yellow' ? '#ffc107' : '#dc3545') ?>">
+                                            <?= ucfirst($a['collar_status']) ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="text-muted">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars($a['is_in_shelter'] ? ($a['shelter_city'] ?? $a['shelter_name'] ?? '—') : ($a['location_label'] ?? '—')) ?></td>
                                 <td><?= htmlspecialchars($a['shelter_name'] ?? '—') ?></td>
                                 <td><?= htmlspecialchars($a['reporter'] ?? '—') ?></td>
                                 <td>
@@ -165,10 +209,12 @@ $shelters = mysqli_query($conn, "SELECT id, shelter_name FROM shelters ORDER BY 
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="?toggle=<?= $a['id'] ?>" class="btn btn-sm btn-<?= $a['is_active'] ? 'warning' : 'success' ?>">
-                                        <?= $a['is_active'] ? 'Deactivate' : 'Activate' ?>
-                                    </a>
-                                    <a href="?delete=<?= $a['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this animal?');">Delete</a>
+                                    <div class="d-flex gap-2">
+                                        <a href="?toggle=<?= $a['id'] ?>" class="btn btn-sm btn-<?= $a['is_active'] ? 'warning' : 'success' ?>">
+                                            <?= $a['is_active'] ? 'Deactivate' : 'Activate' ?>
+                                        </a>
+                                        <a href="?delete=<?= $a['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this animal?');">Delete</a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>

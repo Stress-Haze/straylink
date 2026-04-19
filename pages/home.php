@@ -54,9 +54,17 @@ $posts = mysqli_query($conn, "
                 <h1 class="display-3 fw-bold mb-4 text-white">Helping Rescuers, Shelters & Adopters Care for Strays Together</h1>
                 <p class="lead mb-5 text-white fs-5">StrayLink brings rescue reporting, animal discovery, and community action into one place so every animal gets seen faster and supported better.</p>
                 <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-lg-start">
-                    <a href="<?= isLoggedIn() && hasRole('user') ? 'account.php' : 'gallery.php' ?>" class="btn btn-light btn-lg text-success fw-bold">
-                        <i class="bi bi-<?= isLoggedIn() && hasRole('user') ? 'box-arrow-up-right' : 'search-heart' ?> me-2"></i>
-                        <?= isLoggedIn() && hasRole('user') ? 'Open My Dashboard' : 'Browse Animals' ?>
+                    <?php
+                        if (isLoggedIn()) {
+                            if (isAdmin())         { $dash_href = '../dashboard/admin/index.php';     $dash_label = 'Open Admin Dashboard';   $dash_icon = 'speedometer2'; }
+                            elseif (isShelter())   { $dash_href = '../dashboard/shelter/index.php';   $dash_label = 'Open Shelter Dashboard'; $dash_icon = 'house-heart'; }
+                            elseif (isVolunteer()) { $dash_href = '../dashboard/volunteer/index.php'; $dash_label = 'Open My Dashboard';      $dash_icon = 'box-arrow-up-right'; }
+                            else                   { $dash_href = 'account.php';                      $dash_label = 'Open My Dashboard';      $dash_icon = 'box-arrow-up-right'; }
+                        }
+                    ?>
+                    <a href="<?= isLoggedIn() ? $dash_href : 'gallery.php' ?>" class="btn btn-light btn-lg text-success fw-bold">
+                        <i class="bi bi-<?= isLoggedIn() ? $dash_icon : 'search-heart' ?> me-2"></i>
+                        <?= isLoggedIn() ? $dash_label : 'Browse Animals' ?>
                     </a>
                     <a href="rescue.php" class="btn btn-outline-hero btn-lg">
                         <i class="bi bi-exclamation-triangle me-2"></i>Report a Stray
@@ -139,10 +147,21 @@ $posts = mysqli_query($conn, "
                     </p>
                     <h3 class="fw-bold mb-4" style="color: #ffffff;">A clearer path from discovery to action</h3>
                     <p class="mb-4" style="color: rgba(255,255,255,0.95);">Visitors can quickly understand the mission, browse available animals, and move into the right next step without digging through crowded screens.</p>
-                    <a href="<?= isLoggedIn() && hasRole('user') ? 'account.php' : '../auth/register.php' ?>" class="btn btn-light w-100 text-success fw-bold">
-                        <i class="bi bi-<?= isLoggedIn() && hasRole('user') ? 'speedometer2' : 'person-plus' ?> me-1"></i>
-                        <?= isLoggedIn() && hasRole('user') ? 'Go to My Dashboard' : 'Join the Community' ?>
-                    </a>
+                    <?php if (isLoggedIn()): ?>
+                        <?php
+                            if (isAdmin())         { $dash_href2 = '../dashboard/admin/index.php';     $dash_label2 = 'Admin Dashboard'; }
+                            elseif (isShelter())   { $dash_href2 = '../dashboard/shelter/index.php';   $dash_label2 = 'Shelter Dashboard'; }
+                            elseif (isVolunteer()) { $dash_href2 = '../dashboard/volunteer/index.php'; $dash_label2 = 'My Dashboard'; }
+                            else                   { $dash_href2 = 'account.php';                      $dash_label2 = 'My Dashboard'; }
+                        ?>
+                        <a href="<?= $dash_href2 ?>" class="btn btn-light w-100 text-success fw-bold">
+                            <i class="bi bi-speedometer2 me-1"></i><?= $dash_label2 ?>
+                        </a>
+                    <?php else: ?>
+                        <a href="../auth/register.php" class="btn btn-light w-100 text-success fw-bold">
+                            <i class="bi bi-person-plus me-1"></i>Join the Community
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

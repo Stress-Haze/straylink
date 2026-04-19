@@ -69,6 +69,12 @@ $posts = mysqli_query($conn, "
                     <a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Strays</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a>
                 </li>
                 <li class="nav-item">
@@ -129,7 +135,7 @@ $posts = mysqli_query($conn, "
                                 <td>
                                     <?= $p['published_at'] ? date('M d, Y', strtotime($p['published_at'])) : '—' ?>
                                 </td>
-                                <td class="d-flex gap-1">
+                                <td style="white-space:nowrap;">
                                     <a href="post_create.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                     <a href="../../pages/blog_builder.php?edit=<?= $p['id'] ?>" class="btn btn-sm btn-outline-info">
                                         <i class="bi bi-palette"></i> Style

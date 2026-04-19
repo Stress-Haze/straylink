@@ -6,6 +6,10 @@ require_once '../includes/auth.php';
 
 requireLogin();
 
+// Shelters and admins have their own dashboards
+if (isShelter())   redirect('../dashboard/shelter/index.php');
+if (isAdmin())     redirect('../dashboard/admin/index.php');
+
 $member_id = $_SESSION['member_id'];
 $member = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM members WHERE id = $member_id"));
 

@@ -13,6 +13,10 @@ if (isset($_GET['approve']) && is_numeric($_GET['approve'])) {
     if ($report) {
         mysqli_query($conn, "UPDATE rescue_reports SET status = 'approved' WHERE id = $id");
         addKarma($conn, $report['reported_by'], 5);
+        // Notify all volunteers and shelters that a rescue is on the board
+        notifyRoles($conn, ['volunteer', 'shelter'], 'rescue_approved',
+            'A new rescue report is on the board: ' . $report['title'],
+            '../../pages/rescue_board.php?report=' . $id);
     }
     redirect('rescues.php');
 }
@@ -60,6 +64,8 @@ $reports = mysqli_query($conn, "
                 <li class="nav-item"><a class="nav-link" href="members.php"><i class="bi bi-people"></i> Members</a></li>
                 <li class="nav-item"><a class="nav-link" href="animals.php"><i class="bi bi-heart"></i> Animals</a></li>
                 <li class="nav-item"><a class="nav-link active" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a></li>
+                <li class="nav-item"><a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a></li>
+                <li class="nav-item"><a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Strays</a></li>
                 <li class="nav-item"><a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a></li>
                 <li class="nav-item"><a class="nav-link" href="shelters.php"><i class="bi bi-house"></i> Shelters</a></li>
                 <li class="nav-item"><a class="nav-link" href="posts.php"><i class="bi bi-newspaper"></i> Blog Posts</a></li>
@@ -126,8 +132,12 @@ $reports = mysqli_query($conn, "
                                     <?php if ($row['status'] === 'pending'): ?>
                                         <a href="?approve=<?= $row['id'] ?>" class="btn btn-sm btn-success">Approve +5 karma</a>
                                         <a href="?reject=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Reject</a>
+                                    <?php elseif ($row['status'] === 'approved' || $row['status'] === 'in_progress'): ?>
+                                        <a href="../../pages/rescue_board.php?report=<?= $row['id'] ?>" class="btn btn-sm btn-outline-success" target="_blank">
+                                            <i class="bi bi-broadcast me-1"></i>View on Board
+                                        </a>
                                     <?php else: ?>
-                                        <span class="badge bg-<?= $row['status'] === 'approved' ? 'success' : 'danger' ?>">
+                                        <span class="badge bg-<?= $row['status'] === 'resolved' ? 'success' : 'danger' ?>">
                                             <?= ucfirst($row['status']) ?>
                                         </span>
                                     <?php endif; ?>

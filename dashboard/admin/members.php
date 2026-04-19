@@ -122,6 +122,12 @@ if ($verification_filter) $active_filters[] = 'Verification: ' . ucfirst($verifi
                     <a class="nav-link" href="rescues.php"><i class="bi bi-exclamation-triangle"></i> Rescue Reports</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Strays</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="lost_pets.php"><i class="bi bi-megaphone"></i> Lost Pets</a>
                 </li>
                 <li class="nav-item">
@@ -181,7 +187,7 @@ if ($verification_filter) $active_filters[] = 'Verification: ' . ucfirst($verifi
                         </select>
                     </div>
                     <div class="col-lg-1 col-md-12 d-grid">
-                        <button type="submit" class="btn btn-success">Go</button>
+                        <button type="submit" class="btn btn-success" style="white-space:nowrap;">Go</button>
                     </div>
                 </div>
                 <?php if ($active_filters): ?>

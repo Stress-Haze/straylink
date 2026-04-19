@@ -218,8 +218,14 @@ $theme_map = [
             <h2 class="fw-bold mb-1">Latest Posts</h2>
             <p class="text-muted"><?= count($post_items) ?> published stories from the community.</p>
         </div>
-        <?php if (isLoggedIn() && hasRole('user')): ?>
-            <a href="account.php" class="btn btn-outline-success">Write from My App</a>
+        <?php if (isLoggedIn()): ?>
+            <?php
+                if (isAdmin())         { $dash_href = '../dashboard/admin/index.php';     $dash_label = 'Admin Dashboard'; }
+                elseif (isShelter())   { $dash_href = '../dashboard/shelter/index.php';   $dash_label = 'Shelter Dashboard'; }
+                elseif (isVolunteer()) { $dash_href = '../dashboard/volunteer/index.php'; $dash_label = 'My Dashboard'; }
+                else                   { $dash_href = 'account.php';                      $dash_label = 'My App'; }
+            ?>
+            <a href="<?= $dash_href ?>" class="btn btn-outline-success"><?= $dash_label ?></a>
         <?php endif; ?>
     </div>
 

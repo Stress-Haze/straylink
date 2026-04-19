@@ -87,6 +87,11 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .animal-side-stack .card {
+            border-left: 4px solid #28a745;
+        }
+    </style>
 </head>
 <body>
 
@@ -171,35 +176,8 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
                 <?php endif; ?>
             </div>
 
-            <div class="row g-3 mb-5">
-                <div class="col-sm-6 col-xl-3">
-                    <div class="animal-info-tile">
-                        <small><i class="bi bi-shield-check me-1"></i>Vaccinated</small>
-                        <strong><?= $animal['is_vaccinated'] ? '<span class="text-success">Yes</span>' : '<span class="text-muted">No</span>' ?></strong>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-3">
-                    <div class="animal-info-tile">
-                        <small><i class="bi bi-heart-pulse me-1"></i>Sterilized</small>
-                        <strong><?= $animal['is_sterilized'] ? '<span class="text-success">Yes</span>' : '<span class="text-muted">No</span>' ?></strong>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-3">
-                    <div class="animal-info-tile">
-                        <small><i class="bi bi-heart-fill me-1"></i>Adoption</small>
-                        <strong><?= ucfirst(str_replace('_', ' ', $animal['adoption_status'])) ?></strong>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-xl-3">
-                    <div class="animal-info-tile">
-                        <small><i class="bi bi-geo-alt-fill me-1"></i>Location</small>
-                        <strong><?= $animal['is_in_shelter'] ? 'In Shelter' : 'Outside' ?></strong>
-                    </div>
-                </div>
-            </div>
-
             <?php if ($animal['description']): ?>
-            <div class="card shadow-sm mb-4" style="border-left: 4px solid var(--green);">
+            <div class="card shadow-sm mb-4" style="border: 2px solid var(--green);">
                 <div class="card-header fw-bold text-success py-2">
                     <i class="bi bi-chat-heart me-2"></i>About <?= htmlspecialchars($animal['name'] ?? 'This Animal') ?>
                 </div>
@@ -233,7 +211,7 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
                 </div>
             </div>
             <?php elseif (!$animal['is_in_shelter'] && $animal['location_label']): ?>
-            <div class="card shadow-sm mb-4" style="border-left: 4px solid var(--green);">
+            <div class="card shadow-sm mb-4" style="border: 2px solid var(--green);">
                 <div class="card-header fw-bold text-success py-2">
                     <i class="bi bi-geo-alt-fill me-2"></i>Last Known Location
                 </div>
@@ -244,7 +222,7 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
             <?php endif; ?>
 
             <?php if (count($health_items) > 0): ?>
-            <div class="card shadow-sm">
+            <div class="card shadow-sm" style="border: 2px solid var(--green-light);">
                 <div class="card-header fw-bold">Health Records</div>
                 <div class="card-body p-0">
                     <div class="d-none d-md-block">
@@ -345,7 +323,7 @@ $availability_note = $animal['adoption_status'] === 'available' ? 'Available to 
                     </div>
                 </div>
 
-                <div class="card shadow-sm">
+                <div class="card shadow-sm animal-action-card">
                     <div class="card-body">
                         <h5 class="fw-bold mb-3 text-success">
                             <i class="bi bi-info-circle me-2"></i>Quick Facts

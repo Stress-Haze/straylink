@@ -55,8 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $last_seen_at = sanitize($_POST['last_seen_at']);
     $reward_amount = $_POST['reward_amount'] !== '' ? (float)$_POST['reward_amount'] : null;
     $reward_note = sanitize($_POST['reward_note']);
-    $bg_color = sanitize($_POST['bg_color'] ?? $post['bg_color'] ?? '#faf7f2');
-    $bg_pattern = sanitize($_POST['bg_pattern'] ?? $post['bg_pattern'] ?? 'none');
 
     if ($pet_name === '' || $contact_name === '' || $contact_number === '' || $city === '' || $last_seen_label === '' || $last_seen_at === '') {
         $error = "Please fill in all required fields.";
@@ -85,21 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Handle side images
-        $side_images = $post['side_images'] ? json_decode($post['side_images'], true) : [];
-        for ($i = 1; $i <= 6; $i++) {
-            if (!empty($_FILES["side_image_$i"]['name'])) {
-                $ext = pathinfo($_FILES["side_image_$i"]['name'], PATHINFO_EXTENSION);
-                $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-                if (in_array(strtolower($ext), $allowed, true)) {
-                    $img_name = 'lost_pet_side_' . $i . '_' . time() . '.' . strtolower($ext);
-                    move_uploaded_file($_FILES["side_image_$i"]['tmp_name'], '../public/uploads/' . $img_name);
-                    $side_images[$i] = $img_name;
-                }
-            }
-        }
-        $side_images_json = json_encode($side_images);
-
         if (!$error) {
             $needs_review = !in_array($post['status'], ['found', 'closed'], true);
             $new_status = $needs_review ? 'pending' : $post['status'];
@@ -111,13 +94,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SET pet_name = ?, species = ?, breed = ?, gender = ?, age_text = ?, color_markings = ?, description = ?,
                     contact_name = ?, contact_number = ?, contact_email = ?, city = ?, last_seen_label = ?, last_seen_latitude = ?,
                     last_seen_longitude = ?, last_seen_at = ?, reward_amount = ?, reward_note = ?, poster_image = ?, status = ?,
-                    visibility = ?, expires_at = ?, bg_color = ?, bg_pattern = ?, side_images = ?
+                    visibility = ?, expires_at = ?
                 WHERE id = ? AND member_id = ?
             ");
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "ssssssssssssddsdsssssssii",
+                "sssssssssssddsdssssssii",
                 $pet_name,
                 $species,
                 $breed,
@@ -139,9 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new_status,
                 $new_visibility,
                 $expires_at,
-                $bg_color,
-                $bg_pattern,
-                $side_images_json,
                 $post_id,
                 $member_id
             );
@@ -275,15 +255,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="form-label">Last Seen Location <span class="text-danger">*</span></label>
                     <input type="text" name="last_seen_label" class="form-control" required value="<?= htmlspecialchars($post['last_seen_label']) ?>">
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Latitude</label>
-                        <input type="text" name="last_seen_latitude" class="form-control" value="<?= htmlspecialchars((string)$post['last_seen_latitude']) ?>">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Longitude</label>
-                        <input type="text" name="last_seen_longitude" class="form-control" value="<?= htmlspecialchars((string)$post['last_seen_longitude']) ?>">
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Pin Location <small class="text-muted">(optional)</small></label>
+                    <?php require_once '../includes/map_picker.php'; renderMapPicker('last_seen_latitude', 'last_seen_longitude', $post['last_seen_latitude'], $post['last_seen_longitude']); ?>
                 </div>
             </div>
 

@@ -151,6 +151,9 @@ $photos = mysqli_query($conn, "SELECT * FROM animal_photos WHERE animal_id = $an
                     <a class="nav-link" href="donations.php"><i class="bi bi-cash-coin"></i> Donations</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="profile.php"><i class="bi bi-gear"></i> Shelter Profile</a>
                 </li>
             </ul>

@@ -62,6 +62,8 @@ $posts = mysqli_query($conn, "
                 <li class="nav-item"><a class="nav-link" href="log_activity.php"><i class="bi bi-journal-plus"></i> Log Activity</a></li>
                 <li class="nav-item"><a class="nav-link" href="rescue_report.php"><i class="bi bi-exclamation-triangle"></i> Report Rescue</a></li>
                 <li class="nav-item"><a class="nav-link active" href="posts.php"><i class="bi bi-newspaper"></i> My Posts</a></li>
+                <li class="nav-item"><a class="nav-link" href="strays.php"><i class="bi bi-geo-alt"></i> Stray Updates</a></li>
+                <li class="nav-item"><a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a></li>
             </ul>
         </nav>
 

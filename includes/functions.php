@@ -60,4 +60,28 @@ function getNextMilestone($karma) {
 function canPostBlog($karma) {
     return $karma >= 10;
 }
+
+function addNotification($conn, $member_id, $type, $message, $link = null) {
+    $member_id = (int)$member_id;
+    $type    = mysqli_real_escape_string($conn, $type);
+    $title   = mysqli_real_escape_string($conn, $type);
+    $body    = mysqli_real_escape_string($conn, $message);
+    $link_sql = $link ? "'" . mysqli_real_escape_string($conn, $link) . "'" : 'NULL';
+    mysqli_query($conn, "INSERT INTO notifications (member_id, type, title, body, link, is_read, created_at)
+        VALUES ($member_id, '$type', '$title', '$body', $link_sql, 0, NOW())");
+}
+
+function notifyRoles($conn, array $roles, $type, $message, $link = null) {
+    $placeholders = implode(',', array_map(fn($r) => "'" . mysqli_real_escape_string($conn, $r) . "'", $roles));
+    $members = mysqli_query($conn, "SELECT id FROM members WHERE role IN ($placeholders) AND is_active = 1");
+    while ($m = mysqli_fetch_assoc($members)) {
+        addNotification($conn, $m['id'], $type, $message, $link);
+    }
+}
+
+function getUnreadNotificationCount($conn, $member_id) {
+    $member_id = (int)$member_id;
+    $r = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM notifications WHERE member_id = $member_id AND is_read = 0"));
+    return (int)$r['c'];
+}
 ?>

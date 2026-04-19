@@ -176,6 +176,7 @@ $verified_amount = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COALESCE(SUM(a
                 <li class="nav-item"><a class="nav-link" href="animal_add.php"><i class="bi bi-plus-circle"></i> Add Animal</a></li>
                 <li class="nav-item"><a class="nav-link" href="requests.php"><i class="bi bi-envelope"></i> Adoption Requests</a></li>
                 <li class="nav-item"><a class="nav-link active" href="donations.php"><i class="bi bi-cash-coin"></i> Donations</a></li>
+                <li class="nav-item"><a class="nav-link" href="../../pages/rescue_board.php"><i class="bi bi-broadcast"></i> Rescue Board</a></li>
                 <li class="nav-item"><a class="nav-link" href="profile.php"><i class="bi bi-gear"></i> Shelter Profile</a></li>
             </ul>
         </nav>
@@ -315,9 +316,13 @@ $verified_amount = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COALESCE(SUM(a
                                             <td><?= htmlspecialchars($method['account_number'] ?: ($method['payment_identifier'] ?: '-')) ?></td>
                                             <td><span class="badge bg-<?= $method['is_active'] ? 'success' : 'secondary' ?>"><?= $method['is_active'] ? 'Active' : 'Inactive' ?></span></td>
                                             <td>
-                                                <a href="?tab=methods&edit=<?= $method['id'] ?>" class="btn btn-sm btn-outline-primary">Edit</a>
-                                                <a href="?toggle=<?= $method['id'] ?>" class="btn btn-sm btn-outline-secondary"><?= $method['is_active'] ? 'Disable' : 'Enable' ?></a>
-                                                <a href="?delete_method=<?= $method['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this payment method?')">Delete</a>
+                                                <div class="d-flex gap-1 flex-wrap">
+                                                    <a href="?tab=methods&edit=<?= $method['id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                                    <a href="?toggle=<?= $method['id'] ?>" class="btn btn-sm btn-<?= $method['is_active'] ? 'warning' : 'success' ?>" title="<?= $method['is_active'] ? 'Disable' : 'Enable' ?>">
+                                                        <i class="bi bi-<?= $method['is_active'] ? 'pause-fill' : 'play-fill' ?>"></i>
+                                                    </a>
+                                                    <a href="?delete_method=<?= $method['id'] ?>" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Delete this payment method?')"><i class="bi bi-trash"></i></a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>

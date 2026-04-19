@@ -27,6 +27,9 @@ $root = str_repeat('../', $depth);
                     <a class="nav-link <?= $active === 'gallery' ? 'active' : '' ?>" href="<?= $root ?>pages/gallery.php">Gallery</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= $active === 'strays' ? 'active' : '' ?>" href="<?= $root ?>pages/strays.php">Strays</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= $active === 'shelters' ? 'active' : '' ?>" href="<?= $root ?>pages/shelters.php">Shelters</a>
                 </li>
                 <li class="nav-item">
@@ -39,11 +42,17 @@ $root = str_repeat('../', $depth);
                     <a class="nav-link <?= $active === 'rescue' ? 'active' : '' ?>" href="<?= $root ?>pages/rescue.php">Report a Stray</a>
                 </li>
                 <?php if (isLoggedIn()): ?>
+                    <?php
+                        $unread_count = getUnreadNotificationCount($conn, $_SESSION['member_id']);
+                    ?>
                     <?php if (isAdmin()): ?>
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>dashboard/admin/index.php">Dashboard</a></li>
                     <?php elseif (isShelter()): ?>
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>dashboard/shelter/index.php">Dashboard</a></li>
                     <?php elseif (isVolunteer()): ?>
+                        <li class="nav-item">
+                            <a class="nav-link <?= $active === 'rescue_board' ? 'active' : '' ?>" href="<?= $root ?>pages/rescue_board.php">Rescue Board</a>
+                        </li>
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>dashboard/volunteer/index.php">Dashboard</a></li>
                     <?php else: ?>
                         <li class="nav-item">
@@ -51,6 +60,16 @@ $root = str_repeat('../', $depth);
                         </li>
                         <li class="nav-item"><a class="btn btn-outline-light btn-sm" href="<?= $root ?>auth/logout.php">Logout</a></li>
                     <?php endif; ?>
+                    <li class="nav-item">
+                        <a href="<?= $root ?>pages/notifications.php" class="btn btn-outline-light btn-sm position-relative" title="Notifications">
+                            <i class="bi bi-bell"></i>
+                            <?php if ($unread_count > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">
+                                    <?= $unread_count > 9 ? '9+' : $unread_count ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
                 <?php else: ?>
                     <li class="nav-item"><a class="btn btn-outline-light btn-sm px-3" href="<?= $root ?>auth/login.php"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a></li>
                     <li class="nav-item"><a class="btn btn-light btn-sm px-3 text-success fw-bold" href="<?= $root ?>auth/register.php"><i class="bi bi-person-plus me-1"></i>Register</a></li>
